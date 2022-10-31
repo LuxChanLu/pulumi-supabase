@@ -1,0 +1,10 @@
+{
+    "json.schemas": [
+        {
+            "fileMatch": [
+                "/provider/cmd/pulumi-*/schema.json"
+            ],
+            "url": "https://raw.githubusercontent.com/pulumi/pulumi/master/pkg/codegen/schema/pulumi.json"
+        }
+    ]
+}

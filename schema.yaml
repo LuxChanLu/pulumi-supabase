@@ -1,0 +1,260 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/pulumi/pulumi/master/pkg/codegen/schema/pulumi.json
+---
+name: supabase
+types:
+  supabase:organization:Plan:
+    type: string
+    enum: 
+      - name: Free
+        value: free
+      - name: Pro
+        value: pro
+  supabase:organization:Region:
+    type: string
+    enum: 
+      - name: UsEast1
+        value: us-east-1
+      - name: UsWest1
+        value: us-west-1
+      - name: ApSoutheast1
+        value: ap-southeast-1
+      - name: ApNortheast1
+        value: ap-northeast-1
+      - name: ApNortheast2
+        value: ap-northeast-2
+      - name: ApSoutheast2
+        value: ap-southeast-2
+      - name: EuWest1
+        value: eu-west-1
+      - name: EuWest2
+        value: eu-west-2
+      - name: EuCentral1
+        value: eu-central-1
+      - name: CaCentral1
+        value: ca-central-1
+      - name: ApSouth1
+        value: ap-south-1
+      - name: SaEast1
+        value: sa-east-1
+  supabase:organization:FunctionStatus:
+    type: string
+    enum: 
+      - name: Active
+        value: ACTIVE
+      - name: Removed
+        value: REMOVED
+      - name: Throttled
+        value: THROTTLED
+
+resources:
+  supabase:index:Organization:
+    isComponent: true
+    inputProperties:
+      name:
+        type: string
+        description: Name of the organization
+    requiredInputs:
+      - name
+    properties:
+      name:
+        type: string
+        description: Name of the organization
+      id:
+        type: string
+        description: ID of the organization
+    required:
+      - id
+      - name
+
+  supabase:organization:Project:
+    isComponent: true
+    inputProperties:
+      name:
+        type: string
+        description: Name of the project
+      organization_id:
+        type: string
+        description: Organization ID of the project
+      db_pass:
+        type: string
+        description: Postgres password of the project
+        secret: true
+        replaceOnChanges: true
+      plan:
+        type: enum
+        $ref: "#/types/supabase:organization:Plan"
+        description: Plan of the project
+      region:
+        type: enum
+        $ref: "#/types/supabase:organization:Region"
+        description: Region of the project
+        replaceOnChanges: true
+      kps_enabled:
+        type: boolean
+        description: KPS Enabled on the project
+    requiredInputs:
+      - name
+      - organization_id
+      - db_pass
+      - plan
+      - region
+      - kps_enabled
+    properties:
+      id:
+        type: string
+        description: ID of the project
+      organization_id:
+        type: string
+        description: Organization ID of the project
+      name:
+        type: string
+        description: Name of the project
+      region:
+        type: enum
+        $ref: "#/types/supabase:organization:Region"
+        description: Region of the project
+      created_at:
+        type: string
+        description: Project creation date
+    required:
+      - id
+      - name
+      - organization_id
+      - region
+      - created_at
+
+  supabase:project:Function:
+    isComponent: true
+    inputProperties:
+      projectId:
+        type: string
+        description: ID of the project
+      name:
+        type: string
+        description: Name of the function
+      slug:
+        type: string
+        description: Slug of the function
+      body:
+        type: string
+        description: Body of the functino
+        secret: true
+      verify_jwt:
+        type: boolean
+        description: Verify JWT before running
+        default: false
+    requiredInputs:
+      - projectId
+      - name
+      - slug
+      - body
+    properties:
+      id:
+        type: string
+        description: ID of the function
+      name:
+        type: string
+        description: Name of the function
+      slug:
+        type: string
+        description: Slug of the function
+      status:
+        type: enum
+        $ref: "#/types/supabase:organization:FunctionStatus"
+        description: Status of the function
+      version:
+        type: integer
+        description: Version of the function
+      created_at:
+        type: string
+        description: Function creation date
+      updatedAt:
+        type: string
+        description: Function updated date
+      verify_jwt:
+        type: boolean
+        description: Verify JWT before running
+    required:
+      - id
+      - name
+      - slug
+      - status
+      - version
+      - created_at
+      - updatedAt
+      - verify_jwt
+
+  supabase:project:Secret:
+    isComponent: true
+    inputProperties:
+      projectId:
+        type: string
+        description: ID of the project
+      name:
+        type: string
+        description: Name of the secret
+      value:
+        type: string
+        description: Value of the secret
+        secret: true
+    requiredInputs:
+      - projectId
+      - name
+      - value
+    properties:
+      name:
+        type: string
+        description: Name of the secret
+      value:
+        type: string
+        description: Value of the secret
+        secret: true
+    required:
+      - name
+      - value
+
+functions:
+  supabase:project:GetTypeScript: 
+    inputs:
+      properties:
+        projectId:
+          type: string
+          description: ID of the project
+    required:
+      - projectId
+    outputs:
+      properties:
+        types:
+          type: string
+          description: TypeScript types of the project
+      required:
+        - types
+
+config:
+  variables:
+    server:
+      type: string
+      description: Supabase server (https://api.supabase.com/v1/)
+      default: https://api.supabase.com/v1/
+    token:
+      type: string
+      description: Supabase auth token
+      secret: true
+
+language:
+  csharp:
+    packageReferences:
+      Pulumi: 3.*
+      LuxChanLu.Pulumisupabase: 4.*
+  go:
+    generateResourceContainerTypes: true
+    importBasePath: github.com/LuxChanLu/pulumi-supabase/sdk/go/supabase
+  nodejs:
+    dependencies:
+      "@luxchanlu/pulumi-supabase": "^1.0.1"
+    devDependencies:
+      typescript: "^3.7.0"
+  python:
+    requires:
+      pulumi: ">=3.0.0,<4.0.0"
+      pulumi-supabase: ">=1.0.1"

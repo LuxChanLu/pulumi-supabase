@@ -1,5 +1,5 @@
 # Pulumi Component Provider Boilerplate (Go)
-
+pulumi plugin install resource supabase --server github://api.github.com/LuxChanLu/pulumi-supabase
 This repo is a boilerplate showing how to create a Pulumi component provider written in Go. You can search-replace `supabase` with the name of your desired provider as a starting point for creating a component provider for your component resources.
 
 ## Background

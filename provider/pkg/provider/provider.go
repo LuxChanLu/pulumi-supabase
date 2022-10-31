@@ -72,10 +72,10 @@ func (p *supabaseProvider) Configure(_ context.Context, req *pulumirpc.Configure
 	server, _ := os.LookupEnv("SUPABASE_SERVER")
 	token, _ := os.LookupEnv("SUPABASE_TOKEN")
 	for key, value := range req.GetVariables() {
-		if key == "supabase:server" {
+		if key == "server" {
 			server = value
 		}
-		if key == "supabase:token" {
+		if key == "token" {
 			token = value
 		}
 	}
@@ -98,18 +98,18 @@ func (p *supabaseProvider) CheckConfig(ctx context.Context, req *pulumirpc.Check
 	hasToken := false
 	failures := []*pulumirpc.CheckFailure{}
 	for key, value := range req.GetNews().GetFields() {
-		if key == "supabase:server" {
+		if key == "server" {
 			_, err := url.Parse(value.String())
 			if err != nil {
-				failures = append(failures, &pulumirpc.CheckFailure{Property: "supabase:server", Reason: fmt.Sprintf("error parsing supabase url: %s", err.Error())})
+				failures = append(failures, &pulumirpc.CheckFailure{Property: "server", Reason: fmt.Sprintf("error parsing supabase url: %s", err.Error())})
 			}
 		}
-		if key == "supabase:token" {
+		if key == "token" {
 			hasToken = true
 		}
 	}
 	if !hasToken {
-		failures = append(failures, &pulumirpc.CheckFailure{Property: "supabase:token", Reason: "missing supabase token"})
+		failures = append(failures, &pulumirpc.CheckFailure{Property: "token", Reason: "missing supabase token"})
 	}
 	if len(failures) > 0 {
 		return &pulumirpc.CheckResponse{Inputs: req.GetNews(), Failures: failures}, nil
@@ -132,13 +132,13 @@ func (p *supabaseProvider) DiffConfig(ctx context.Context, req *pulumirpc.DiffRe
 	d := olds.Diff(news)
 	changes := pulumirpc.DiffResponse_DIFF_NONE
 
-	if d.Changed("supabase:server") || d.Changed("supabase:token") {
+	if d.Changed("server") || d.Changed("token") {
 		changes = pulumirpc.DiffResponse_DIFF_SOME
 	}
 
 	return &pulumirpc.DiffResponse{
 		Changes:  changes,
-		Replaces: []string{"supabase:server", "supabase:token"},
+		Replaces: []string{"server", "token"},
 	}, nil
 }
 

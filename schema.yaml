@@ -262,6 +262,7 @@ language:
     importBasePath: github.com/LuxChanLu/pulumi-supabase/sdk/go/supabase
   nodejs:
     dependencies:
+      "@pulumi/pulumi": "^3.45.0"
     devDependencies:
       typescript: "^3.7.0"
   python:

@@ -64,6 +64,7 @@ func NewProject(ctx *pulumi.Context,
 	if args.Db_pass != nil {
 		args.Db_pass = pulumi.ToSecret(args.Db_pass).(pulumi.StringOutput)
 	}
+	opts = pkgResourceDefaultOpts(opts)
 	var resource Project
 	err := ctx.RegisterResource("supabase:index:Project", name, args, &resource, opts...)
 	if err != nil {

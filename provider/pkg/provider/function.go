@@ -68,3 +68,18 @@ func (p *supabaseProvider) deleteFunction(ctx context.Context, projectId, slug s
 	function, err := p.supabase.DeleteFunctionWithResponse(ctx, projectId, slug)
 	return checkForSupabaseError(function.HTTPResponse, err)
 }
+
+func (p *supabaseProvider) diffFunction(ctx context.Context, diff *resource.ObjectDiff) ([]string, bool) {
+	changes := []string{}
+	recreate := false
+	for _, key := range diff.ChangedKeys() {
+		if key == "name" || key == "body" || key == "verify_jwt" {
+			changes = append(changes, string(key))
+		}
+		if key == "slug" {
+			changes = append(changes, string(key))
+			recreate = true
+		}
+	}
+	return changes, recreate
+}

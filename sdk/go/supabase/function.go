@@ -55,6 +55,7 @@ func NewFunction(ctx *pulumi.Context,
 	if args.Body != nil {
 		args.Body = pulumi.ToSecret(args.Body).(pulumi.StringOutput)
 	}
+	opts = pkgResourceDefaultOpts(opts)
 	var resource Function
 	err := ctx.RegisterResource("supabase:index:Function", name, args, &resource, opts...)
 	if err != nil {

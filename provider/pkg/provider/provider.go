@@ -14,6 +14,7 @@ import (
 	"github.com/pulumi/pulumi/pkg/v3/resource/provider"
 	"github.com/pulumi/pulumi/sdk/v3/go/common/resource"
 	"github.com/pulumi/pulumi/sdk/v3/go/common/resource/plugin"
+	"github.com/pulumi/pulumi/sdk/v3/go/common/util/logging"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
@@ -133,10 +134,10 @@ func (p *supabaseProvider) DiffConfig(ctx context.Context, req *pulumirpc.DiffRe
 		return nil, err
 	}
 
-	d := olds.Diff(news)
+	diff := olds.Diff(news)
 	changes := pulumirpc.DiffResponse_DIFF_NONE
 
-	if d != nil && (d.Changed(configServerKey) || d.Changed(configTokenKey)) {
+	if diff != nil && (diff.Changed(configServerKey) || diff.Changed(configTokenKey)) {
 		changes = pulumirpc.DiffResponse_DIFF_SOME
 	}
 
@@ -198,6 +199,8 @@ func (p *supabaseProvider) Check(ctx context.Context, req *pulumirpc.CheckReques
 
 // Diff checks what impacts a hypothetical update will have on the resource's properties.
 func (p *supabaseProvider) Diff(ctx context.Context, req *pulumirpc.DiffRequest) (*pulumirpc.DiffResponse, error) {
+	urn := resource.URN(req.GetUrn())
+
 	olds, err := plugin.UnmarshalProperties(req.GetOlds(), plugin.MarshalOptions{KeepUnknowns: true, SkipNulls: true})
 	if err != nil {
 		return nil, err
@@ -208,16 +211,29 @@ func (p *supabaseProvider) Diff(ctx context.Context, req *pulumirpc.DiffRequest)
 		return nil, err
 	}
 
-	d := olds.Diff(news)
+	replaces := []string{}
+	deleteBeforeReplace := false
+
+	diff := olds.Diff(news)
 	changes := pulumirpc.DiffResponse_DIFF_NONE
 
-	if d.AnyChanges() {
-		changes = pulumirpc.DiffResponse_DIFF_SOME
+	switch urn.Type() {
+	case "supabase:index:Organization":
+		replaces, deleteBeforeReplace = p.diffOrganization(ctx, diff)
+	case "supabase:index:Project":
+		replaces, deleteBeforeReplace = p.diffProject(ctx, diff)
+	case "supabase:index:Function":
+		replaces, deleteBeforeReplace = p.diffFunction(ctx, diff)
+	case "supabase:index:Secret":
+		replaces, deleteBeforeReplace = p.diffSecret(ctx, diff)
+	default:
+		return nil, status.Error(codes.Unimplemented, fmt.Sprintf("%s does not exist", urn.Type()))
 	}
 
 	return &pulumirpc.DiffResponse{
-		Changes:  changes,
-		Replaces: []string{},
+		Changes:             changes,
+		Replaces:            replaces,
+		DeleteBeforeReplace: deleteBeforeReplace,
 	}, nil
 }
 
@@ -331,6 +347,7 @@ func (p *supabaseProvider) Update(ctx context.Context, req *pulumirpc.UpdateRequ
 
 	outputs := map[string]interface{}{}
 
+	logging.Errorf("%+v %+v", olds, news)
 	switch urn.Type() {
 	case "supabase:index:Organization":
 		return nil, status.Error(codes.Unimplemented, "no update available for organization (update manually and refresh)")
@@ -345,6 +362,7 @@ func (p *supabaseProvider) Update(ctx context.Context, req *pulumirpc.UpdateRequ
 	default:
 		return nil, status.Error(codes.Unimplemented, fmt.Sprintf("%s does not exist", urn.Type()))
 	}
+
 	outputProperties, err := plugin.MarshalProperties(resource.NewPropertyMapFromMap(outputs), plugin.MarshalOptions{KeepUnknowns: true, SkipNulls: true})
 	if err != nil {
 		return nil, err

@@ -1,6 +1,8 @@
 # yaml-language-server: $schema=https://raw.githubusercontent.com/pulumi/pulumi/master/pkg/codegen/schema/pulumi.json
 ---
 name: supabase
+pluginDownloadUrl: github://api.github.com/LuxChanLu
+
 types:
   supabase:index:Plan:
     type: string

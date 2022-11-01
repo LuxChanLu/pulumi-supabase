@@ -43,3 +43,14 @@ func (p *supabaseProvider) readOrganization(ctx context.Context, id string, outp
 	}
 	return "", nil
 }
+
+func (p *supabaseProvider) diffOrganization(ctx context.Context, diff *resource.ObjectDiff) ([]string, bool) {
+	changes := []string{}
+	recreate := false
+	for _, key := range diff.ChangedKeys() {
+		if key == "name" {
+			changes = append(changes, string(key))
+		}
+	}
+	return changes, recreate
+}

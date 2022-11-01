@@ -28,6 +28,7 @@ func NewOrganization(ctx *pulumi.Context,
 	if args.Name == nil {
 		return nil, errors.New("invalid value for required argument 'Name'")
 	}
+	opts = pkgResourceDefaultOpts(opts)
 	var resource Organization
 	err := ctx.RegisterResource("supabase:index:Organization", name, args, &resource, opts...)
 	if err != nil {

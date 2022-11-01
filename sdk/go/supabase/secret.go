@@ -43,6 +43,7 @@ func NewSecret(ctx *pulumi.Context,
 		"value",
 	})
 	opts = append(opts, secrets)
+	opts = pkgResourceDefaultOpts(opts)
 	var resource Secret
 	err := ctx.RegisterResource("supabase:index:Secret", name, args, &resource, opts...)
 	if err != nil {

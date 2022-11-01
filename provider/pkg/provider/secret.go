@@ -48,3 +48,14 @@ func (p *supabaseProvider) deleteSecret(ctx context.Context, projectId, name str
 	function, err := p.supabase.DeleteSecretsWithResponse(ctx, projectId, client.DeleteSecretsJSONRequestBody{name})
 	return checkForSupabaseError(function.HTTPResponse, err)
 }
+
+func (p *supabaseProvider) diffSecret(ctx context.Context, diff *resource.ObjectDiff) ([]string, bool) {
+	changes := []string{}
+	recreate := false
+	for _, key := range diff.ChangedKeys() {
+		if key == "name" || key == "value" {
+			changes = append(changes, string(key))
+		}
+	}
+	return changes, recreate
+}

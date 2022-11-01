@@ -11,6 +11,7 @@ import (
 )
 
 func GetTypeScript(ctx *pulumi.Context, args *GetTypeScriptArgs, opts ...pulumi.InvokeOption) (*GetTypeScriptResult, error) {
+	opts = pkgInvokeDefaultOpts(opts)
 	var rv GetTypeScriptResult
 	err := ctx.Invoke("supabase:index:GetTypeScript", args.Defaults(), &rv, opts...)
 	if err != nil {

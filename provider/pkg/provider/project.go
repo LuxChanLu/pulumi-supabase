@@ -37,11 +37,10 @@ func (p *supabaseProvider) readProject(ctx context.Context, id string, outputs *
 	}
 	for _, project := range *projects.JSON200 {
 		if project.Id == id {
-			outputs := map[string]interface{}{}
-			if err := structToOutputs(project, &outputs); err != nil {
+			if err := structToOutputs(project, outputs); err != nil {
 				return "", err
 			}
-			decorateProject(&project, outputs)
+			decorateProject(&project, *outputs)
 			return project.Id, nil
 		}
 	}
@@ -58,4 +57,19 @@ func decorateProject(project *client.ProjectResponse, outputs map[string]interfa
 	outputs["dbPoolingPort"] = 6543
 
 	outputs["endpoint"] = fmt.Sprintf("https://%s.supabase.co", project.Id)
+}
+
+func (p *supabaseProvider) diffProject(ctx context.Context, diff *resource.ObjectDiff) ([]string, bool) {
+	changes := []string{}
+	recreate := false
+	for _, key := range diff.ChangedKeys() {
+		if key == "db_pass" || key == "name" || key == "organization_id" || key == "kps_enabled" || key == "plan" {
+			changes = append(changes, string(key))
+		}
+		if key == "region" {
+			changes = append(changes, string(key))
+			recreate = true
+		}
+	}
+	return changes, recreate
 }

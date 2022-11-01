@@ -45,7 +45,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="LuxChanLu.Pulumisupabase" Version="4.*" />
     <PackageReference Include="Pulumi" Version="3.*" />
   </ItemGroup>
 

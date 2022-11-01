@@ -257,16 +257,13 @@ language:
   csharp:
     packageReferences:
       Pulumi: 3.*
-      LuxChanLu.Pulumisupabase: 4.*
   go:
     generateResourceContainerTypes: true
     importBasePath: github.com/LuxChanLu/pulumi-supabase/sdk/go/supabase
   nodejs:
     dependencies:
-      "@luxchanlu/pulumi-supabase": "^1.0.1"
     devDependencies:
       typescript: "^3.7.0"
   python:
     requires:
       pulumi: ">=3.0.0,<4.0.0"
-      pulumi-supabase: ">=1.0.1"

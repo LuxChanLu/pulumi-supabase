@@ -47,11 +47,11 @@ export class Project extends pulumi.CustomResource {
     /**
      * DB Port for pooled connection
      */
-    public /*out*/ readonly dbPoolingPort!: pulumi.Output<string>;
+    public /*out*/ readonly dbPoolingPort!: pulumi.Output<number>;
     /**
      * DB Port
      */
-    public /*out*/ readonly dbPort!: pulumi.Output<string>;
+    public /*out*/ readonly dbPort!: pulumi.Output<number>;
     /**
      * DB Username
      */

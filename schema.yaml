@@ -114,13 +114,13 @@ resources:
         type: string
         description: DB Hostname
       dbPort:
-        type: string
+        type: integer
         description: DB Port
       dbName:
         type: string
         description: DB Name
       dbPoolingPort:
-        type: string
+        type: integer
         description: DB Port for pooled connection
       endpoint:
         type: string

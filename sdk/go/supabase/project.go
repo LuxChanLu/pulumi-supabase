@@ -21,9 +21,9 @@ type Project struct {
 	// DB Name
 	DbName pulumi.StringOutput `pulumi:"dbName"`
 	// DB Port for pooled connection
-	DbPoolingPort pulumi.StringOutput `pulumi:"dbPoolingPort"`
+	DbPoolingPort pulumi.IntOutput `pulumi:"dbPoolingPort"`
 	// DB Port
-	DbPort pulumi.StringOutput `pulumi:"dbPort"`
+	DbPort pulumi.IntOutput `pulumi:"dbPort"`
 	// DB Username
 	DbUsername pulumi.StringOutput `pulumi:"dbUsername"`
 	// Supabase endpoint for client

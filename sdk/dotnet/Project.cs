@@ -34,13 +34,13 @@ namespace Pulumi.Supabase
         /// DB Port for pooled connection
         /// </summary>
         [Output("dbPoolingPort")]
-        public Output<string> DbPoolingPort { get; private set; } = null!;
+        public Output<int> DbPoolingPort { get; private set; } = null!;
 
         /// <summary>
         /// DB Port
         /// </summary>
         [Output("dbPort")]
-        public Output<string> DbPort { get; private set; } = null!;
+        public Output<int> DbPort { get; private set; } = null!;
 
         /// <summary>
         /// DB Username

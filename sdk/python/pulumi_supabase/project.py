@@ -258,7 +258,7 @@ class Project(pulumi.CustomResource):
 
     @property
     @pulumi.getter(name="dbPoolingPort")
-    def db_pooling_port(self) -> pulumi.Output[str]:
+    def db_pooling_port(self) -> pulumi.Output[int]:
         """
         DB Port for pooled connection
         """
@@ -266,7 +266,7 @@ class Project(pulumi.CustomResource):
 
     @property
     @pulumi.getter(name="dbPort")
-    def db_port(self) -> pulumi.Output[str]:
+    def db_port(self) -> pulumi.Output[int]:
         """
         DB Port
         """

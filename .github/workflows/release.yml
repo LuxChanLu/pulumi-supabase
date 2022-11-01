@@ -82,15 +82,6 @@ jobs:
           python-version: ${{matrix.pythonversion}}
       - name: Build SDK
         run: make build_${{ matrix.language }}_sdk
-      - name: Check worktree clean
-        run: |
-          git update-index -q --refresh
-          if ! git diff-files --quiet; then
-              >&2 echo "error: working tree is not clean, aborting!"
-              git status
-              git diff
-              exit 1
-          fi
       - name: Compress SDK folder
         run: tar -zcf sdk/${{ matrix.language }}.tar.gz -C sdk/${{ matrix.language }} .
       - name: Upload artifacts

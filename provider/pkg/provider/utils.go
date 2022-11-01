@@ -9,7 +9,21 @@ import (
 )
 
 func propertiesMapToStruct(inputs resource.PropertyMap, output interface{}) error {
-	jsonData, err := json.Marshal(inputs.Mappable())
+	jsonData, err := json.Marshal(inputs.MapRepl(nil, func(pv resource.PropertyValue) (interface{}, bool) {
+		if pv.IsComputed() {
+			return pv.Input().Element.Mappable(), true
+		}
+		if pv.IsOutput() {
+			return pv.OutputValue().Element.Mappable(), true
+		}
+		if pv.IsSecret() {
+			return pv.SecretValue().Element.Mappable(), true
+		}
+		if pv.IsResourceReference() {
+			return pv.ResourceReferenceValue().ID.Mappable(), true
+		}
+		return nil, false
+	}))
 	if err != nil {
 		return err
 	}

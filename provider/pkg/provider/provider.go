@@ -95,7 +95,13 @@ func (p *supabaseProvider) Configure(_ context.Context, req *pulumirpc.Configure
 func (p *supabaseProvider) CheckConfig(ctx context.Context, req *pulumirpc.CheckRequest) (*pulumirpc.CheckResponse, error) {
 	hasToken := false
 	failures := []*pulumirpc.CheckFailure{}
-	for key, value := range req.GetNews().GetFields() {
+
+	news, err := plugin.UnmarshalProperties(req.GetNews(), plugin.MarshalOptions{KeepUnknowns: true, SkipNulls: true})
+	if err != nil {
+		return nil, err
+	}
+
+	for key, value := range news {
 		if key == configServerKey {
 			_, err := url.Parse(value.String())
 			if err != nil {
@@ -143,9 +149,14 @@ func (p *supabaseProvider) DiffConfig(ctx context.Context, req *pulumirpc.DiffRe
 // Invoke dynamically executes a built-in function in the provider.
 func (p *supabaseProvider) Invoke(ctx context.Context, req *pulumirpc.InvokeRequest) (*pulumirpc.InvokeResponse, error) {
 	tok := req.GetTok()
+	inputs, err := plugin.UnmarshalProperties(req.GetArgs(), plugin.MarshalOptions{KeepUnknowns: true, SkipNulls: true})
+	if err != nil {
+		return nil, err
+	}
+
 	switch tok {
 	case "supabase:index:GetTypeScript":
-		schema, err := p.supabase.GetTypescriptTypesWithResponse(ctx, req.Args.GetFields()["projectId"].GetStringValue(), &client.GetTypescriptTypesParams{IncludedSchemas: pulumi.StringRef(req.Args.GetFields()["includedSchemas"].GetStringValue())})
+		schema, err := p.supabase.GetTypescriptTypesWithResponse(ctx, inputs["projectId"].String(), &client.GetTypescriptTypesParams{IncludedSchemas: pulumi.StringRef(inputs["includedSchemas"].String())})
 		if err != nil {
 			return nil, err
 		}
@@ -221,7 +232,6 @@ func (p *supabaseProvider) Create(ctx context.Context, req *pulumirpc.CreateRequ
 	urn := resource.URN(req.GetUrn())
 	id := ""
 
-	fields := req.GetProperties().GetFields()
 	inputs, err := plugin.UnmarshalProperties(req.GetProperties(), plugin.MarshalOptions{KeepUnknowns: true, SkipNulls: true})
 	if err != nil {
 		return nil, err
@@ -241,12 +251,12 @@ func (p *supabaseProvider) Create(ctx context.Context, req *pulumirpc.CreateRequ
 			return nil, err
 		}
 	case "supabase:index:Function":
-		id, err = p.createFunction(ctx, inputs, fields["projectId"].GetStringValue(), req.GetPreview(), &outputs)
+		id, err = p.createFunction(ctx, inputs, inputs["projectId"].String(), req.GetPreview(), &outputs)
 		if err != nil {
 			return nil, err
 		}
 	case "supabase:index:Secret":
-		id, err = p.createSecret(ctx, inputs, fields["projectId"].GetStringValue(), req.GetPreview(), &outputs)
+		id, err = p.createSecret(ctx, inputs, inputs["projectId"].String(), req.GetPreview(), &outputs)
 		if err != nil {
 			return nil, err
 		}
@@ -267,7 +277,10 @@ func (p *supabaseProvider) Read(ctx context.Context, req *pulumirpc.ReadRequest)
 	urn := resource.URN(req.GetUrn())
 	id := ""
 
-	fields := req.GetProperties().GetFields()
+	inputs, err := plugin.UnmarshalProperties(req.GetProperties(), plugin.MarshalOptions{KeepUnknowns: true, SkipNulls: true, KeepOutputValues: false})
+	if err != nil {
+		return nil, err
+	}
 
 	outputs := map[string]interface{}{}
 
@@ -283,12 +296,12 @@ func (p *supabaseProvider) Read(ctx context.Context, req *pulumirpc.ReadRequest)
 			return nil, err
 		}
 	case "supabase:index:Function":
-		id, err = p.readFunction(ctx, fields["projectId"].GetStringValue(), fields["slug"].GetStringValue(), &outputs)
+		id, err = p.readFunction(ctx, inputs["projectId"].String(), inputs["slug"].String(), &outputs)
 		if err != nil {
 			return nil, err
 		}
 	case "supabase:index:Secret":
-		id, err = p.readSecret(ctx, fields["projectId"].GetStringValue(), fields["name"].GetStringValue(), &outputs)
+		id, err = p.readSecret(ctx, inputs["projectId"].String(), inputs["name"].String(), &outputs)
 		if err != nil {
 			return nil, err
 		}
@@ -306,7 +319,12 @@ func (p *supabaseProvider) Read(ctx context.Context, req *pulumirpc.ReadRequest)
 func (p *supabaseProvider) Update(ctx context.Context, req *pulumirpc.UpdateRequest) (*pulumirpc.UpdateResponse, error) {
 	urn := resource.URN(req.GetUrn())
 
-	inputs, err := plugin.UnmarshalProperties(req.GetNews(), plugin.MarshalOptions{KeepUnknowns: true, SkipNulls: true})
+	olds, err := plugin.UnmarshalProperties(req.GetOlds(), plugin.MarshalOptions{KeepUnknowns: true, SkipNulls: true})
+	if err != nil {
+		return nil, err
+	}
+
+	news, err := plugin.UnmarshalProperties(req.GetNews(), plugin.MarshalOptions{KeepUnknowns: true, SkipNulls: true})
 	if err != nil {
 		return nil, err
 	}
@@ -319,7 +337,7 @@ func (p *supabaseProvider) Update(ctx context.Context, req *pulumirpc.UpdateRequ
 	case "supabase:index:Project":
 		return nil, status.Error(codes.Unimplemented, "no update available for organization project (update manually and refresh)")
 	case "supabase:index:Function":
-		if err := p.updateFunction(ctx, inputs, req.GetOlds().Fields["projectId"].GetStringValue(), req.GetOlds().Fields["slug"].GetStringValue(), req.GetPreview(), &outputs); err != nil {
+		if err := p.updateFunction(ctx, news, olds["projectId"].String(), olds["slug"].String(), req.GetPreview(), &outputs); err != nil {
 			return nil, err
 		}
 	case "supabase:index:Secret":
@@ -339,15 +357,20 @@ func (p *supabaseProvider) Update(ctx context.Context, req *pulumirpc.UpdateRequ
 func (p *supabaseProvider) Delete(ctx context.Context, req *pulumirpc.DeleteRequest) (*pbempty.Empty, error) {
 	urn := resource.URN(req.GetUrn())
 
+	inputs, err := plugin.UnmarshalProperties(req.GetProperties(), plugin.MarshalOptions{KeepUnknowns: true, SkipNulls: true})
+	if err != nil {
+		return nil, err
+	}
+
 	switch urn.Type() {
 	case "supabase:index:Organization":
 		return nil, status.Error(codes.Unimplemented, "no delete available for organization (delete manually and refresh)")
 	case "supabase:index:Project":
 		return nil, status.Error(codes.Unimplemented, "no delete available for organization project (delete manually and refresh)")
 	case "supabase:index:Function":
-		return &pbempty.Empty{}, p.deleteFunction(ctx, req.GetProperties().Fields["projectId"].GetStringValue(), req.GetProperties().Fields["slug"].GetStringValue())
+		return &pbempty.Empty{}, p.deleteFunction(ctx, inputs["projectId"].String(), inputs["slug"].String())
 	case "supabase:index:Secret":
-		return &pbempty.Empty{}, p.deleteSecret(ctx, req.GetProperties().Fields["projectId"].GetStringValue(), req.GetProperties().Fields["name"].GetStringValue())
+		return &pbempty.Empty{}, p.deleteSecret(ctx, inputs["projectId"].String(), inputs["name"].String())
 	default:
 		return nil, status.Error(codes.Unimplemented, fmt.Sprintf("%s does not exist", urn.Type()))
 	}

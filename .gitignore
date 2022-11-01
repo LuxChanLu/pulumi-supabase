@@ -29,3 +29,5 @@ ci-scripts/
 *.tar.gz
 
 /provider/cmd/pulumi-resource-*/schema.go
+
+.air.toml

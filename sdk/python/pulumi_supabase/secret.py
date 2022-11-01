@@ -6,7 +6,7 @@ import warnings
 import pulumi
 import pulumi.runtime
 from typing import Any, Mapping, Optional, Sequence, Union, overload
-from .. import _utilities
+from . import _utilities
 
 __all__ = ['SecretArgs', 'Secret']
 
@@ -130,7 +130,7 @@ class Secret(pulumi.CustomResource):
         secret_opts = pulumi.ResourceOptions(additional_secret_outputs=["value"])
         opts = pulumi.ResourceOptions.merge(opts, secret_opts)
         super(Secret, __self__).__init__(
-            'supabase:project:Secret',
+            'supabase:index:Secret',
             resource_name,
             __props__,
             opts)

@@ -6,8 +6,8 @@ import warnings
 import pulumi
 import pulumi.runtime
 from typing import Any, Mapping, Optional, Sequence, Union, overload
-from .. import _utilities
-from .. import organization
+from . import _utilities
+from ._enums import *
 
 __all__ = ['FunctionArgs', 'Function']
 
@@ -178,7 +178,7 @@ class Function(pulumi.CustomResource):
             __props__.__dict__["updated_at"] = None
             __props__.__dict__["version"] = None
         super(Function, __self__).__init__(
-            'supabase:project:Function',
+            'supabase:index:Function',
             resource_name,
             __props__,
             opts)
@@ -234,7 +234,7 @@ class Function(pulumi.CustomResource):
 
     @property
     @pulumi.getter
-    def status(self) -> pulumi.Output['_organization.FunctionStatus']:
+    def status(self) -> pulumi.Output['FunctionStatus']:
         """
         Status of the function
         """

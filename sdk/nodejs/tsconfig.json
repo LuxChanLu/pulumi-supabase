@@ -15,17 +15,14 @@
     "files": [
         "config/index.ts",
         "config/vars.ts",
+        "function.ts",
+        "getTypeScript.ts",
         "index.ts",
         "organization.ts",
-        "organization/index.ts",
-        "organization/project.ts",
-        "project/function.ts",
-        "project/getTypeScript.ts",
-        "project/index.ts",
-        "project/secret.ts",
+        "project.ts",
         "provider.ts",
+        "secret.ts",
         "types/enums/index.ts",
-        "types/enums/organization/index.ts",
         "utilities.ts"
     ]
 }

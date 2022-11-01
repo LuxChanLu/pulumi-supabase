@@ -5,7 +5,7 @@ using System;
 using System.ComponentModel;
 using Pulumi;
 
-namespace Pulumi.Supabase.Organization
+namespace Pulumi.Supabase
 {
     [EnumType]
     public readonly struct FunctionStatus : IEquatable<FunctionStatus>

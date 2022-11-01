@@ -7,9 +7,9 @@ using System.Collections.Immutable;
 using System.Threading.Tasks;
 using Pulumi.Serialization;
 
-namespace Pulumi.Supabase.Project
+namespace Pulumi.Supabase
 {
-    [SupabaseResourceType("supabase:project:Function")]
+    [SupabaseResourceType("supabase:index:Function")]
     public partial class Function : Pulumi.CustomResource
     {
         /// <summary>
@@ -34,7 +34,7 @@ namespace Pulumi.Supabase.Project
         /// Status of the function
         /// </summary>
         [Output("status")]
-        public Output<Pulumi.Supabase.Organization.FunctionStatus> Status { get; private set; } = null!;
+        public Output<Pulumi.Supabase.FunctionStatus> Status { get; private set; } = null!;
 
         /// <summary>
         /// Function updated date
@@ -63,12 +63,12 @@ namespace Pulumi.Supabase.Project
         /// <param name="args">The arguments used to populate this resource's properties</param>
         /// <param name="options">A bag of options that control this resource's behavior</param>
         public Function(string name, FunctionArgs args, CustomResourceOptions? options = null)
-            : base("supabase:project:Function", name, args ?? new FunctionArgs(), MakeResourceOptions(options, ""))
+            : base("supabase:index:Function", name, args ?? new FunctionArgs(), MakeResourceOptions(options, ""))
         {
         }
 
         private Function(string name, Input<string> id, CustomResourceOptions? options = null)
-            : base("supabase:project:Function", name, null, MakeResourceOptions(options, id))
+            : base("supabase:index:Function", name, null, MakeResourceOptions(options, id))
         {
         }
 

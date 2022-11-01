@@ -145,7 +145,7 @@ func (p *supabaseProvider) DiffConfig(ctx context.Context, req *pulumirpc.DiffRe
 func (p *supabaseProvider) Invoke(ctx context.Context, req *pulumirpc.InvokeRequest) (*pulumirpc.InvokeResponse, error) {
 	tok := req.GetTok()
 	switch tok {
-	case "supabase:project:GetTypeScript":
+	case "supabase:index:GetTypeScript":
 		schema, err := p.supabase.GetTypescriptTypesWithResponse(ctx, req.Args.GetFields()["projectId"].GetStringValue(), &client.GetTypescriptTypesParams{IncludedSchemas: pulumi.StringRef(req.Args.GetFields()["includedSchemas"].GetStringValue())})
 		if err != nil {
 			return nil, err
@@ -244,18 +244,18 @@ func (p *supabaseProvider) Create(ctx context.Context, req *pulumirpc.CreateRequ
 		if err != nil {
 			return nil, err
 		}
-	case "supabase:organization:Project":
-		id, err = p.createOrganizationProject(ctx, inputs, req.GetPreview(), &outputs)
+	case "supabase:index:Project":
+		id, err = p.createProject(ctx, inputs, req.GetPreview(), &outputs)
 		if err != nil {
 			return nil, err
 		}
-	case "supabase:project:Function":
-		id, err = p.createProjectFunction(ctx, inputs, fields["projectId"].GetStringValue(), req.GetPreview(), &outputs)
+	case "supabase:index:Function":
+		id, err = p.createFunction(ctx, inputs, fields["projectId"].GetStringValue(), req.GetPreview(), &outputs)
 		if err != nil {
 			return nil, err
 		}
-	case "supabase:project:Secret":
-		id, err = p.createProjectSecret(ctx, inputs, fields["projectId"].GetStringValue(), req.GetPreview(), &outputs)
+	case "supabase:index:Secret":
+		id, err = p.createSecret(ctx, inputs, fields["projectId"].GetStringValue(), req.GetPreview(), &outputs)
 		if err != nil {
 			return nil, err
 		}
@@ -286,18 +286,18 @@ func (p *supabaseProvider) Read(ctx context.Context, req *pulumirpc.ReadRequest)
 		if err != nil {
 			return nil, err
 		}
-	case "supabase:organization:Project":
-		id, err = p.readOrganizationProject(ctx, req.Id, &outputs)
+	case "supabase:index:Project":
+		id, err = p.readProject(ctx, req.Id, &outputs)
 		if err != nil {
 			return nil, err
 		}
-	case "supabase:project:Function":
-		id, err = p.readProjectFunction(ctx, fields["projectId"].GetStringValue(), fields["slug"].GetStringValue(), &outputs)
+	case "supabase:index:Function":
+		id, err = p.readFunction(ctx, fields["projectId"].GetStringValue(), fields["slug"].GetStringValue(), &outputs)
 		if err != nil {
 			return nil, err
 		}
-	case "supabase:project:Secret":
-		id, err = p.readProjectSecret(ctx, fields["projectId"].GetStringValue(), fields["name"].GetStringValue(), &outputs)
+	case "supabase:index:Secret":
+		id, err = p.readSecret(ctx, fields["projectId"].GetStringValue(), fields["name"].GetStringValue(), &outputs)
 		if err != nil {
 			return nil, err
 		}
@@ -325,13 +325,13 @@ func (p *supabaseProvider) Update(ctx context.Context, req *pulumirpc.UpdateRequ
 	switch urn.Type() {
 	case "supabase:index:Organization":
 		return nil, status.Error(codes.Unimplemented, "no update available for organization (update manually and refresh)")
-	case "supabase:organization:Project":
+	case "supabase:index:Project":
 		return nil, status.Error(codes.Unimplemented, "no update available for organization project (update manually and refresh)")
-	case "supabase:project:Function":
-		if err := p.updateProjectFunction(ctx, inputs, req.GetOlds().Fields["projectId"].GetStringValue(), req.GetOlds().Fields["slug"].GetStringValue(), req.GetPreview(), &outputs); err != nil {
+	case "supabase:index:Function":
+		if err := p.updateFunction(ctx, inputs, req.GetOlds().Fields["projectId"].GetStringValue(), req.GetOlds().Fields["slug"].GetStringValue(), req.GetPreview(), &outputs); err != nil {
 			return nil, err
 		}
-	case "supabase:project:Secret":
+	case "supabase:index:Secret":
 		return nil, status.Error(codes.Unimplemented, "no update available for project secret (update manually and refresh)")
 	default:
 		return nil, status.Error(codes.Unimplemented, fmt.Sprintf("%s does not exist", urn.Type()))
@@ -351,12 +351,12 @@ func (p *supabaseProvider) Delete(ctx context.Context, req *pulumirpc.DeleteRequ
 	switch urn.Type() {
 	case "supabase:index:Organization":
 		return nil, status.Error(codes.Unimplemented, "no delete available for organization (delete manually and refresh)")
-	case "supabase:organization:Project":
+	case "supabase:index:Project":
 		return nil, status.Error(codes.Unimplemented, "no delete available for organization project (delete manually and refresh)")
-	case "supabase:project:Function":
-		return &pbempty.Empty{}, p.deleteProjectFunction(ctx, req.GetProperties().Fields["projectId"].GetStringValue(), req.GetProperties().Fields["slug"].GetStringValue())
-	case "supabase:project:Secret":
-		return &pbempty.Empty{}, p.deleteProjectSecret(ctx, req.GetProperties().Fields["projectId"].GetStringValue(), req.GetProperties().Fields["name"].GetStringValue())
+	case "supabase:index:Function":
+		return &pbempty.Empty{}, p.deleteFunction(ctx, req.GetProperties().Fields["projectId"].GetStringValue(), req.GetProperties().Fields["slug"].GetStringValue())
+	case "supabase:index:Secret":
+		return &pbempty.Empty{}, p.deleteSecret(ctx, req.GetProperties().Fields["projectId"].GetStringValue(), req.GetProperties().Fields["name"].GetStringValue())
 	default:
 		return nil, status.Error(codes.Unimplemented, fmt.Sprintf("%s does not exist", urn.Type()))
 	}

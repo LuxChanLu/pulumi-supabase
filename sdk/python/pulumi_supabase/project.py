@@ -6,7 +6,7 @@ import warnings
 import pulumi
 import pulumi.runtime
 from typing import Any, Mapping, Optional, Sequence, Union, overload
-from .. import _utilities
+from . import _utilities
 from ._enums import *
 
 __all__ = ['ProjectArgs', 'Project']
@@ -199,7 +199,7 @@ class Project(pulumi.CustomResource):
             __props__.__dict__["db_username"] = None
             __props__.__dict__["endpoint"] = None
         super(Project, __self__).__init__(
-            'supabase:organization:Project',
+            'supabase:index:Project',
             resource_name,
             __props__,
             opts)

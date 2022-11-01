@@ -2,7 +2,7 @@
 // *** Do not edit by hand unless you're certain you know what you are doing! ***
 
 import * as pulumi from "@pulumi/pulumi";
-import * as utilities from "../utilities";
+import * as utilities from "./utilities";
 
 export function getTypeScript(args?: GetTypeScriptArgs, opts?: pulumi.InvokeOptions): Promise<GetTypeScriptResult> {
     args = args || {};
@@ -11,7 +11,7 @@ export function getTypeScript(args?: GetTypeScriptArgs, opts?: pulumi.InvokeOpti
     }
 
     opts = pulumi.mergeOptions(utilities.resourceOptsDefaults(), opts);
-    return pulumi.runtime.invoke("supabase:project:GetTypeScript", {
+    return pulumi.runtime.invoke("supabase:index:GetTypeScript", {
         "includedSchemas": args.includedSchemas,
         "projectId": args.projectId,
     }, opts);

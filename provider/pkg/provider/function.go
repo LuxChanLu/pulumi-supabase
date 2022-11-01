@@ -8,7 +8,7 @@ import (
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
 )
 
-func (p *supabaseProvider) createProjectFunction(ctx context.Context, inputs resource.PropertyMap, projectId string, preview bool, outputs *map[string]interface{}) (string, error) {
+func (p *supabaseProvider) createFunction(ctx context.Context, inputs resource.PropertyMap, projectId string, preview bool, outputs *map[string]interface{}) (string, error) {
 	body := client.CreateFunctionJSONRequestBody{}
 	if err := propertiesMapToStruct(inputs, &body); err != nil {
 		return "", err
@@ -29,7 +29,7 @@ func (p *supabaseProvider) createProjectFunction(ctx context.Context, inputs res
 	return "", nil
 }
 
-func (p *supabaseProvider) readProjectFunction(ctx context.Context, projectId, slug string, outputs *map[string]interface{}) (string, error) {
+func (p *supabaseProvider) readFunction(ctx context.Context, projectId, slug string, outputs *map[string]interface{}) (string, error) {
 	function, err := p.supabase.GetFunctionWithResponse(ctx, projectId, slug, &client.GetFunctionParams{IncludeBody: pulumi.BoolRef(true)})
 	if err != nil {
 		return "", err
@@ -43,7 +43,7 @@ func (p *supabaseProvider) readProjectFunction(ctx context.Context, projectId, s
 	return "", nil
 }
 
-func (p *supabaseProvider) updateProjectFunction(ctx context.Context, inputs resource.PropertyMap, projectId, slug string, preview bool, outputs *map[string]interface{}) error {
+func (p *supabaseProvider) updateFunction(ctx context.Context, inputs resource.PropertyMap, projectId, slug string, preview bool, outputs *map[string]interface{}) error {
 	body := client.UpdateFunctionJSONRequestBody{}
 	if err := propertiesMapToStruct(inputs, &body); err != nil {
 		return err
@@ -64,7 +64,7 @@ func (p *supabaseProvider) updateProjectFunction(ctx context.Context, inputs res
 	return nil
 }
 
-func (p *supabaseProvider) deleteProjectFunction(ctx context.Context, projectId, slug string) error {
+func (p *supabaseProvider) deleteFunction(ctx context.Context, projectId, slug string) error {
 	function, err := p.supabase.DeleteFunctionWithResponse(ctx, projectId, slug)
 	return checkForSupabaseError(function.HTTPResponse, err)
 }

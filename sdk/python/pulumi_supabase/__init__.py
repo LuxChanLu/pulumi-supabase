@@ -5,21 +5,20 @@
 from . import _utilities
 import typing
 # Export this package's modules as members:
+from ._enums import *
+from .function import *
+from .get_type_script import *
 from .organization import *
+from .project import *
 from .provider import *
+from .secret import *
 
 # Make subpackages available:
 if typing.TYPE_CHECKING:
     import pulumi_supabase.config as __config
     config = __config
-    import pulumi_supabase.organization as __organization
-    organization = __organization
-    import pulumi_supabase.project as __project
-    project = __project
 else:
     config = _utilities.lazy_import('pulumi_supabase.config')
-    organization = _utilities.lazy_import('pulumi_supabase.organization')
-    project = _utilities.lazy_import('pulumi_supabase.project')
 
 _utilities.register(
     resource_modules="""
@@ -29,24 +28,10 @@ _utilities.register(
   "mod": "index",
   "fqn": "pulumi_supabase",
   "classes": {
-   "supabase:index:Organization": "Organization"
-  }
- },
- {
-  "pkg": "supabase",
-  "mod": "organization",
-  "fqn": "pulumi_supabase.organization",
-  "classes": {
-   "supabase:organization:Project": "Project"
-  }
- },
- {
-  "pkg": "supabase",
-  "mod": "project",
-  "fqn": "pulumi_supabase.project",
-  "classes": {
-   "supabase:project:Function": "Function",
-   "supabase:project:Secret": "Secret"
+   "supabase:index:Function": "Function",
+   "supabase:index:Organization": "Organization",
+   "supabase:index:Project": "Project",
+   "supabase:index:Secret": "Secret"
   }
  }
 ]

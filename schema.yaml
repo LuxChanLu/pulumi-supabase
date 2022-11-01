@@ -2,14 +2,14 @@
 ---
 name: supabase
 types:
-  supabase:organization:Plan:
+  supabase:index:Plan:
     type: string
     enum: 
       - name: Free
         value: free
       - name: Pro
         value: pro
-  supabase:organization:Region:
+  supabase:index:Region:
     type: string
     enum: 
       - name: UsEast1
@@ -36,7 +36,7 @@ types:
         value: ap-south-1
       - name: SaEast1
         value: sa-east-1
-  supabase:organization:FunctionStatus:
+  supabase:index:FunctionStatus:
     type: string
     enum: 
       - name: Active
@@ -61,7 +61,7 @@ resources:
     required:
       - name
 
-  supabase:organization:Project:
+  supabase:index:Project:
     inputProperties:
       name:
         type: string
@@ -76,11 +76,11 @@ resources:
         replaceOnChanges: true
       plan:
         type: enum
-        $ref: "#/types/supabase:organization:Plan"
+        $ref: "#/types/supabase:index:Plan"
         description: Plan of the project
       region:
         type: enum
-        $ref: "#/types/supabase:organization:Region"
+        $ref: "#/types/supabase:index:Region"
         description: Region of the project
         replaceOnChanges: true
       kps_enabled:
@@ -102,7 +102,7 @@ resources:
         description: Name of the project
       region:
         type: enum
-        $ref: "#/types/supabase:organization:Region"
+        $ref: "#/types/supabase:index:Region"
         description: Region of the project
       created_at:
         type: string
@@ -137,7 +137,7 @@ resources:
       - dbPoolingPort
       - endpoint
 
-  supabase:project:Function:
+  supabase:index:Function:
     inputProperties:
       projectId:
         type: string
@@ -170,7 +170,7 @@ resources:
         description: Slug of the function
       status:
         type: enum
-        $ref: "#/types/supabase:organization:FunctionStatus"
+        $ref: "#/types/supabase:index:FunctionStatus"
         description: Status of the function
       version:
         type: integer
@@ -193,7 +193,7 @@ resources:
       - updatedAt
       - verify_jwt
 
-  supabase:project:Secret:
+  supabase:index:Secret:
     inputProperties:
       projectId:
         type: string
@@ -222,7 +222,7 @@ resources:
       - value
 
 functions:
-  supabase:project:GetTypeScript: 
+  supabase:index:GetTypeScript: 
     inputs:
       properties:
         projectId:

@@ -8,7 +8,7 @@ import (
 	"github.com/pulumi/pulumi/sdk/v3/go/common/resource"
 )
 
-func (p *supabaseProvider) createOrganizationProject(ctx context.Context, inputs resource.PropertyMap, preview bool, outputs *map[string]interface{}) (string, error) {
+func (p *supabaseProvider) createProject(ctx context.Context, inputs resource.PropertyMap, preview bool, outputs *map[string]interface{}) (string, error) {
 	body := client.CreateProjectJSONRequestBody{}
 	if err := propertiesMapToStruct(inputs, &body); err != nil {
 		return "", err
@@ -30,7 +30,7 @@ func (p *supabaseProvider) createOrganizationProject(ctx context.Context, inputs
 	return "", nil
 }
 
-func (p *supabaseProvider) readOrganizationProject(ctx context.Context, id string, outputs *map[string]interface{}) (string, error) {
+func (p *supabaseProvider) readProject(ctx context.Context, id string, outputs *map[string]interface{}) (string, error) {
 	projects, err := p.supabase.GetProjectsWithResponse(ctx)
 	if err != nil || projects.JSON200 == nil {
 		return "", err

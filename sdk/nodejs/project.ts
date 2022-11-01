@@ -2,8 +2,8 @@
 // *** Do not edit by hand unless you're certain you know what you are doing! ***
 
 import * as pulumi from "@pulumi/pulumi";
-import { input as inputs, output as outputs, enums } from "../types";
-import * as utilities from "../utilities";
+import { input as inputs, output as outputs, enums } from "./types";
+import * as utilities from "./utilities";
 
 export class Project extends pulumi.CustomResource {
     /**
@@ -19,7 +19,7 @@ export class Project extends pulumi.CustomResource {
     }
 
     /** @internal */
-    public static readonly __pulumiType = 'supabase:organization:Project';
+    public static readonly __pulumiType = 'supabase:index:Project';
 
     /**
      * Returns true if the given object is an instance of Project.  This is designed to work even
@@ -71,7 +71,7 @@ export class Project extends pulumi.CustomResource {
     /**
      * Region of the project
      */
-    public readonly region!: pulumi.Output<enums.organization.Region>;
+    public readonly region!: pulumi.Output<enums.Region>;
 
     /**
      * Create a Project resource with the given unique name, arguments, and options.
@@ -155,9 +155,9 @@ export interface ProjectArgs {
     /**
      * Plan of the project
      */
-    plan: pulumi.Input<enums.organization.Plan>;
+    plan: pulumi.Input<enums.Plan>;
     /**
      * Region of the project
      */
-    region: pulumi.Input<enums.organization.Region>;
+    region: pulumi.Input<enums.Region>;
 }

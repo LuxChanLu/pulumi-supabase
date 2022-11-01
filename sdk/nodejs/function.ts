@@ -2,8 +2,8 @@
 // *** Do not edit by hand unless you're certain you know what you are doing! ***
 
 import * as pulumi from "@pulumi/pulumi";
-import { input as inputs, output as outputs, enums } from "../types";
-import * as utilities from "../utilities";
+import { input as inputs, output as outputs, enums } from "./types";
+import * as utilities from "./utilities";
 
 export class Function extends pulumi.CustomResource {
     /**
@@ -19,7 +19,7 @@ export class Function extends pulumi.CustomResource {
     }
 
     /** @internal */
-    public static readonly __pulumiType = 'supabase:project:Function';
+    public static readonly __pulumiType = 'supabase:index:Function';
 
     /**
      * Returns true if the given object is an instance of Function.  This is designed to work even
@@ -47,7 +47,7 @@ export class Function extends pulumi.CustomResource {
     /**
      * Status of the function
      */
-    public /*out*/ readonly status!: pulumi.Output<enums.organization.FunctionStatus>;
+    public /*out*/ readonly status!: pulumi.Output<enums.FunctionStatus>;
     /**
      * Function updated date
      */

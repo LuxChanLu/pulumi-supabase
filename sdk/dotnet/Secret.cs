@@ -7,9 +7,9 @@ using System.Collections.Immutable;
 using System.Threading.Tasks;
 using Pulumi.Serialization;
 
-namespace Pulumi.Supabase.Project
+namespace Pulumi.Supabase
 {
-    [SupabaseResourceType("supabase:project:Secret")]
+    [SupabaseResourceType("supabase:index:Secret")]
     public partial class Secret : Pulumi.CustomResource
     {
         /// <summary>
@@ -33,12 +33,12 @@ namespace Pulumi.Supabase.Project
         /// <param name="args">The arguments used to populate this resource's properties</param>
         /// <param name="options">A bag of options that control this resource's behavior</param>
         public Secret(string name, SecretArgs args, CustomResourceOptions? options = null)
-            : base("supabase:project:Secret", name, args ?? new SecretArgs(), MakeResourceOptions(options, ""))
+            : base("supabase:index:Secret", name, args ?? new SecretArgs(), MakeResourceOptions(options, ""))
         {
         }
 
         private Secret(string name, Input<string> id, CustomResourceOptions? options = null)
-            : base("supabase:project:Secret", name, null, MakeResourceOptions(options, id))
+            : base("supabase:index:Secret", name, null, MakeResourceOptions(options, id))
         {
         }
 

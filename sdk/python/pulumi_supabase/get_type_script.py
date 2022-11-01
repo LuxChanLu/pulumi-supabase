@@ -6,7 +6,7 @@ import warnings
 import pulumi
 import pulumi.runtime
 from typing import Any, Mapping, Optional, Sequence, Union, overload
-from .. import _utilities
+from . import _utilities
 
 __all__ = [
     'GetTypeScriptResult',
@@ -56,7 +56,7 @@ def get_type_script(included_schemas: Optional[str] = None,
         opts = pulumi.InvokeOptions()
     if opts.version is None:
         opts.version = _utilities.get_version()
-    __ret__ = pulumi.runtime.invoke('supabase:project:GetTypeScript', __args__, opts=opts, typ=GetTypeScriptResult).value
+    __ret__ = pulumi.runtime.invoke('supabase:index:GetTypeScript', __args__, opts=opts, typ=GetTypeScriptResult).value
 
     return AwaitableGetTypeScriptResult(
         types=__ret__.types)

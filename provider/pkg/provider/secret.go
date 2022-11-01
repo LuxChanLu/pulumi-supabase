@@ -7,7 +7,7 @@ import (
 	"github.com/pulumi/pulumi/sdk/v3/go/common/resource"
 )
 
-func (p *supabaseProvider) createProjectSecret(ctx context.Context, inputs resource.PropertyMap, projectId string, preview bool, outputs *map[string]interface{}) (string, error) {
+func (p *supabaseProvider) createSecret(ctx context.Context, inputs resource.PropertyMap, projectId string, preview bool, outputs *map[string]interface{}) (string, error) {
 	body := client.CreateSecretBody{}
 	if err := propertiesMapToStruct(inputs, &body); err != nil {
 		return "", err
@@ -28,7 +28,7 @@ func (p *supabaseProvider) createProjectSecret(ctx context.Context, inputs resou
 	return "", nil
 }
 
-func (p *supabaseProvider) readProjectSecret(ctx context.Context, projectId, name string, outputs *map[string]interface{}) (string, error) {
+func (p *supabaseProvider) readSecret(ctx context.Context, projectId, name string, outputs *map[string]interface{}) (string, error) {
 	secrets, err := p.supabase.GetSecretsWithResponse(ctx, projectId)
 	if err != nil || secrets.JSON200 == nil {
 		return "", err
@@ -44,7 +44,7 @@ func (p *supabaseProvider) readProjectSecret(ctx context.Context, projectId, nam
 	return "", nil
 }
 
-func (p *supabaseProvider) deleteProjectSecret(ctx context.Context, projectId, name string) error {
+func (p *supabaseProvider) deleteSecret(ctx context.Context, projectId, name string) error {
 	function, err := p.supabase.DeleteSecretsWithResponse(ctx, projectId, client.DeleteSecretsJSONRequestBody{name})
 	return checkForSupabaseError(function.HTTPResponse, err)
 }

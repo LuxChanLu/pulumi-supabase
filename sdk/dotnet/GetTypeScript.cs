@@ -7,15 +7,15 @@ using System.Collections.Immutable;
 using System.Threading.Tasks;
 using Pulumi.Serialization;
 
-namespace Pulumi.Supabase.Project
+namespace Pulumi.Supabase
 {
     public static class GetTypeScript
     {
         public static Task<GetTypeScriptResult> InvokeAsync(GetTypeScriptArgs? args = null, InvokeOptions? options = null)
-            => Pulumi.Deployment.Instance.InvokeAsync<GetTypeScriptResult>("supabase:project:GetTypeScript", args ?? new GetTypeScriptArgs(), options.WithDefaults());
+            => Pulumi.Deployment.Instance.InvokeAsync<GetTypeScriptResult>("supabase:index:GetTypeScript", args ?? new GetTypeScriptArgs(), options.WithDefaults());
 
         public static Output<GetTypeScriptResult> Invoke(GetTypeScriptInvokeArgs? args = null, InvokeOptions? options = null)
-            => Pulumi.Deployment.Instance.Invoke<GetTypeScriptResult>("supabase:project:GetTypeScript", args ?? new GetTypeScriptInvokeArgs(), options.WithDefaults());
+            => Pulumi.Deployment.Instance.Invoke<GetTypeScriptResult>("supabase:index:GetTypeScript", args ?? new GetTypeScriptInvokeArgs(), options.WithDefaults());
     }
 
 

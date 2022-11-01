@@ -5,29 +5,41 @@ import * as pulumi from "@pulumi/pulumi";
 import * as utilities from "./utilities";
 
 // Export members:
+export * from "./function";
+export * from "./getTypeScript";
 export * from "./organization";
+export * from "./project";
 export * from "./provider";
+export * from "./secret";
+
+// Export enums:
+export * from "./types/enums";
 
 // Export sub-modules:
 import * as config from "./config";
-import * as organization from "./organization";
-import * as project from "./project";
 
 export {
     config,
-    organization,
-    project,
 };
 
 // Import resources to register:
+import { Function } from "./function";
 import { Organization } from "./organization";
+import { Project } from "./project";
+import { Secret } from "./secret";
 
 const _module = {
     version: utilities.getVersion(),
     construct: (name: string, type: string, urn: string): pulumi.Resource => {
         switch (type) {
+            case "supabase:index:Function":
+                return new Function(name, <any>undefined, { urn })
             case "supabase:index:Organization":
                 return new Organization(name, <any>undefined, { urn })
+            case "supabase:index:Project":
+                return new Project(name, <any>undefined, { urn })
+            case "supabase:index:Secret":
+                return new Secret(name, <any>undefined, { urn })
             default:
                 throw new Error(`unknown resource type ${type}`);
         }

@@ -7,9 +7,9 @@ using System.Collections.Immutable;
 using System.Threading.Tasks;
 using Pulumi.Serialization;
 
-namespace Pulumi.Supabase.Organization
+namespace Pulumi.Supabase
 {
-    [SupabaseResourceType("supabase:organization:Project")]
+    [SupabaseResourceType("supabase:index:Project")]
     public partial class Project : Pulumi.CustomResource
     {
         /// <summary>
@@ -70,7 +70,7 @@ namespace Pulumi.Supabase.Organization
         /// Region of the project
         /// </summary>
         [Output("region")]
-        public Output<Pulumi.Supabase.Organization.Region> Region { get; private set; } = null!;
+        public Output<Pulumi.Supabase.Region> Region { get; private set; } = null!;
 
 
         /// <summary>
@@ -81,12 +81,12 @@ namespace Pulumi.Supabase.Organization
         /// <param name="args">The arguments used to populate this resource's properties</param>
         /// <param name="options">A bag of options that control this resource's behavior</param>
         public Project(string name, ProjectArgs args, CustomResourceOptions? options = null)
-            : base("supabase:organization:Project", name, args ?? new ProjectArgs(), MakeResourceOptions(options, ""))
+            : base("supabase:index:Project", name, args ?? new ProjectArgs(), MakeResourceOptions(options, ""))
         {
         }
 
         private Project(string name, Input<string> id, CustomResourceOptions? options = null)
-            : base("supabase:organization:Project", name, null, MakeResourceOptions(options, id))
+            : base("supabase:index:Project", name, null, MakeResourceOptions(options, id))
         {
         }
 
@@ -155,13 +155,13 @@ namespace Pulumi.Supabase.Organization
         /// Plan of the project
         /// </summary>
         [Input("plan", required: true)]
-        public Input<Pulumi.Supabase.Organization.Plan> Plan { get; set; } = null!;
+        public Input<Pulumi.Supabase.Plan> Plan { get; set; } = null!;
 
         /// <summary>
         /// Region of the project
         /// </summary>
         [Input("region", required: true)]
-        public Input<Pulumi.Supabase.Organization.Region> Region { get; set; } = null!;
+        public Input<Pulumi.Supabase.Region> Region { get; set; } = null!;
 
         public ProjectArgs()
         {

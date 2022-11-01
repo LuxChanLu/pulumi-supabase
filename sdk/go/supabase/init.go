@@ -20,8 +20,14 @@ func (m *module) Version() semver.Version {
 
 func (m *module) Construct(ctx *pulumi.Context, name, typ, urn string) (r pulumi.Resource, err error) {
 	switch typ {
+	case "supabase:index:Function":
+		r = &Function{}
 	case "supabase:index:Organization":
 		r = &Organization{}
+	case "supabase:index:Project":
+		r = &Project{}
+	case "supabase:index:Secret":
+		r = &Secret{}
 	default:
 		return nil, fmt.Errorf("unknown resource type: %s", typ)
 	}

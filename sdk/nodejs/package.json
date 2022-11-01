@@ -1,5 +1,5 @@
 {
-    "name": "@pulumi/supabase",
+    "name": "@luxchanlu/pulumi-supabase",
     "version": "${VERSION}",
     "scripts": {
         "build": "tsc",

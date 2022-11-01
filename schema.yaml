@@ -263,6 +263,7 @@ language:
     generateResourceContainerTypes: true
     importBasePath: github.com/LuxChanLu/pulumi-supabase/sdk/go/supabase
   nodejs:
+    packageName: "@luxchanlu/pulumi-supabase"
     dependencies:
       "@pulumi/pulumi": "^3.45.0"
     devDependencies:

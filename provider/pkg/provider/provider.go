@@ -8,7 +8,6 @@ import (
 	"os"
 
 	"github.com/LuxChanLu/pulumi-supabase/pkg/provider/client"
-	"github.com/pulumi/pulumi/sdk/v3/go/common/util/logging"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
 	"google.golang.org/protobuf/types/known/emptypb"
 
@@ -183,19 +182,11 @@ func (p *supabaseProvider) StreamInvoke(req *pulumirpc.InvokeRequest, server pul
 // required for correctness, violations thereof can negatively impact the end-user experience, as
 // the provider inputs are using for detecting and rendering diffs.
 func (p *supabaseProvider) Check(ctx context.Context, req *pulumirpc.CheckRequest) (*pulumirpc.CheckResponse, error) {
-	urn := resource.URN(req.GetUrn())
-	label := fmt.Sprintf("%s.Create(%s)", p.name, urn)
-	logging.V(9).Infof("%s executing", label)
-
 	return &pulumirpc.CheckResponse{Inputs: req.News, Failures: nil}, nil
 }
 
 // Diff checks what impacts a hypothetical update will have on the resource's properties.
 func (p *supabaseProvider) Diff(ctx context.Context, req *pulumirpc.DiffRequest) (*pulumirpc.DiffResponse, error) {
-	urn := resource.URN(req.GetUrn())
-	label := fmt.Sprintf("%s.Diff(%s)", p.name, urn)
-	logging.V(9).Infof("%s executing", label)
-
 	olds, err := plugin.UnmarshalProperties(req.GetOlds(), plugin.MarshalOptions{KeepUnknowns: true, SkipNulls: true})
 	if err != nil {
 		return nil, err

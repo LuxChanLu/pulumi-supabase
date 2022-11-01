@@ -22,6 +22,12 @@ namespace Pulumi.Supabase.Project
     public sealed class GetTypeScriptArgs : Pulumi.InvokeArgs
     {
         /// <summary>
+        /// Included schemas
+        /// </summary>
+        [Input("includedSchemas")]
+        public string? IncludedSchemas { get; set; }
+
+        /// <summary>
         /// ID of the project
         /// </summary>
         [Input("projectId")]
@@ -29,11 +35,18 @@ namespace Pulumi.Supabase.Project
 
         public GetTypeScriptArgs()
         {
+            IncludedSchemas = "";
         }
     }
 
     public sealed class GetTypeScriptInvokeArgs : Pulumi.InvokeArgs
     {
+        /// <summary>
+        /// Included schemas
+        /// </summary>
+        [Input("includedSchemas")]
+        public Input<string>? IncludedSchemas { get; set; }
+
         /// <summary>
         /// ID of the project
         /// </summary>
@@ -42,6 +55,7 @@ namespace Pulumi.Supabase.Project
 
         public GetTypeScriptInvokeArgs()
         {
+            IncludedSchemas = "";
         }
     }
 

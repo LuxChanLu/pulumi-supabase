@@ -4,7 +4,19 @@
 import * as pulumi from "@pulumi/pulumi";
 import * as utilities from "../utilities";
 
-export class Secret extends pulumi.ComponentResource {
+export class Secret extends pulumi.CustomResource {
+    /**
+     * Get an existing Secret resource's state with the given name, ID, and optional extra
+     * properties used to qualify the lookup.
+     *
+     * @param name The _unique_ name of the resulting resource.
+     * @param id The _unique_ provider ID of the resource to lookup.
+     * @param opts Optional settings to control the behavior of the CustomResource.
+     */
+    public static get(name: string, id: pulumi.Input<pulumi.ID>, opts?: pulumi.CustomResourceOptions): Secret {
+        return new Secret(name, undefined as any, { ...opts, id: id });
+    }
+
     /** @internal */
     public static readonly __pulumiType = 'supabase:project:Secret';
 
@@ -35,7 +47,7 @@ export class Secret extends pulumi.ComponentResource {
      * @param args The arguments to use to populate this resource's properties.
      * @param opts A bag of options that control this resource's behavior.
      */
-    constructor(name: string, args: SecretArgs, opts?: pulumi.ComponentResourceOptions) {
+    constructor(name: string, args: SecretArgs, opts?: pulumi.CustomResourceOptions) {
         let resourceInputs: pulumi.Inputs = {};
         opts = opts || {};
         if (!opts.id) {
@@ -58,7 +70,7 @@ export class Secret extends pulumi.ComponentResource {
         opts = pulumi.mergeOptions(utilities.resourceOptsDefaults(), opts);
         const secretOpts = { additionalSecretOutputs: ["value"] };
         opts = pulumi.mergeOptions(opts, secretOpts);
-        super(Secret.__pulumiType, name, resourceInputs, opts, true /*remote*/);
+        super(Secret.__pulumiType, name, resourceInputs, opts);
     }
 }
 

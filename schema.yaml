@@ -48,7 +48,6 @@ types:
 
 resources:
   supabase:index:Organization:
-    isComponent: true
     inputProperties:
       name:
         type: string
@@ -59,15 +58,10 @@ resources:
       name:
         type: string
         description: Name of the organization
-      id:
-        type: string
-        description: ID of the organization
     required:
-      - id
       - name
 
   supabase:organization:Project:
-    isComponent: true
     inputProperties:
       name:
         type: string
@@ -100,9 +94,6 @@ resources:
       - region
       - kps_enabled
     properties:
-      id:
-        type: string
-        description: ID of the project
       organization_id:
         type: string
         description: Organization ID of the project
@@ -116,15 +107,37 @@ resources:
       created_at:
         type: string
         description: Project creation date
+      dbUsername:
+        type: string
+        description: DB Username
+      dbHost:
+        type: string
+        description: DB Hostname
+      dbPort:
+        type: string
+        description: DB Port
+      dbName:
+        type: string
+        description: DB Name
+      dbPoolingPort:
+        type: string
+        description: DB Port for pooled connection
+      endpoint:
+        type: string
+        description: Supabase endpoint for client
     required:
-      - id
       - name
       - organization_id
       - region
       - created_at
+      - dbUsername
+      - dbHost
+      - dbPort
+      - dbName
+      - dbPoolingPort
+      - endpoint
 
   supabase:project:Function:
-    isComponent: true
     inputProperties:
       projectId:
         type: string
@@ -149,9 +162,6 @@ resources:
       - slug
       - body
     properties:
-      id:
-        type: string
-        description: ID of the function
       name:
         type: string
         description: Name of the function
@@ -175,7 +185,6 @@ resources:
         type: boolean
         description: Verify JWT before running
     required:
-      - id
       - name
       - slug
       - status
@@ -185,7 +194,6 @@ resources:
       - verify_jwt
 
   supabase:project:Secret:
-    isComponent: true
     inputProperties:
       projectId:
         type: string
@@ -220,6 +228,10 @@ functions:
         projectId:
           type: string
           description: ID of the project
+        includedSchemas:
+          type: string
+          description: Included schemas
+          default: ""
     required:
       - projectId
     outputs:
@@ -234,8 +246,8 @@ config:
   variables:
     server:
       type: string
-      description: Supabase server (https://api.supabase.com/v1/)
-      default: https://api.supabase.com/v1/
+      description: Supabase server (https://api.supabase.com/)
+      default: https://api.supabase.com/
     token:
       type: string
       description: Supabase auth token

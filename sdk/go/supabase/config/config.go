@@ -8,13 +8,13 @@ import (
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi/config"
 )
 
-// Supabase server (https://api.supabase.com/v1/)
+// Supabase server (https://api.supabase.com/)
 func GetServer(ctx *pulumi.Context) string {
 	v, err := config.Try(ctx, "supabase:server")
 	if err == nil {
 		return v
 	}
-	return "https://api.supabase.com/v1/"
+	return "https://api.supabase.com/"
 }
 
 // Supabase auth token

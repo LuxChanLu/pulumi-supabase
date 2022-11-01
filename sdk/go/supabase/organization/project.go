@@ -12,12 +12,22 @@ import (
 )
 
 type Project struct {
-	pulumi.ResourceState
+	pulumi.CustomResourceState
 
 	// Project creation date
 	Created_at pulumi.StringOutput `pulumi:"created_at"`
-	// ID of the project
-	Id pulumi.StringOutput `pulumi:"id"`
+	// DB Hostname
+	DbHost pulumi.StringOutput `pulumi:"dbHost"`
+	// DB Name
+	DbName pulumi.StringOutput `pulumi:"dbName"`
+	// DB Port for pooled connection
+	DbPoolingPort pulumi.StringOutput `pulumi:"dbPoolingPort"`
+	// DB Port
+	DbPort pulumi.StringOutput `pulumi:"dbPort"`
+	// DB Username
+	DbUsername pulumi.StringOutput `pulumi:"dbUsername"`
+	// Supabase endpoint for client
+	Endpoint pulumi.StringOutput `pulumi:"endpoint"`
 	// Name of the project
 	Name pulumi.StringOutput `pulumi:"name"`
 	// Organization ID of the project
@@ -55,11 +65,34 @@ func NewProject(ctx *pulumi.Context,
 		args.Db_pass = pulumi.ToSecret(args.Db_pass).(pulumi.StringOutput)
 	}
 	var resource Project
-	err := ctx.RegisterRemoteComponentResource("supabase:organization:Project", name, args, &resource, opts...)
+	err := ctx.RegisterResource("supabase:organization:Project", name, args, &resource, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return &resource, nil
+}
+
+// GetProject gets an existing Project resource's state with the given name, ID, and optional
+// state properties that are used to uniquely qualify the lookup (nil if not required).
+func GetProject(ctx *pulumi.Context,
+	name string, id pulumi.IDInput, state *ProjectState, opts ...pulumi.ResourceOption) (*Project, error) {
+	var resource Project
+	err := ctx.ReadResource("supabase:organization:Project", name, id, state, &resource, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &resource, nil
+}
+
+// Input properties used for looking up and filtering Project resources.
+type projectState struct {
+}
+
+type ProjectState struct {
+}
+
+func (ProjectState) ElementType() reflect.Type {
+	return reflect.TypeOf((*projectState)(nil)).Elem()
 }
 
 type projectArgs struct {

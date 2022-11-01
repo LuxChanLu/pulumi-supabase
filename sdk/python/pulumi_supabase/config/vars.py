@@ -17,9 +17,9 @@ class _ExportableConfig(types.ModuleType):
     @property
     def server(self) -> str:
         """
-        Supabase server (https://api.supabase.com/v1/)
+        Supabase server (https://api.supabase.com/)
         """
-        return __config__.get('server') or 'https://api.supabase.com/v1/'
+        return __config__.get('server') or 'https://api.supabase.com/'
 
     @property
     def token(self) -> Optional[str]:

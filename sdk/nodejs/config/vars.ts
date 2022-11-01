@@ -8,12 +8,12 @@ declare var exports: any;
 const __config = new pulumi.Config("supabase");
 
 /**
- * Supabase server (https://api.supabase.com/v1/)
+ * Supabase server (https://api.supabase.com/)
  */
 export declare const server: string;
 Object.defineProperty(exports, "server", {
     get() {
-        return __config.get("server") ?? "https://api.supabase.com/v1/";
+        return __config.get("server") ?? "https://api.supabase.com/";
     },
     enumerable: true,
 });

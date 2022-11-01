@@ -40,14 +40,17 @@ class AwaitableGetTypeScriptResult(GetTypeScriptResult):
             types=self.types)
 
 
-def get_type_script(project_id: Optional[str] = None,
+def get_type_script(included_schemas: Optional[str] = None,
+                    project_id: Optional[str] = None,
                     opts: Optional[pulumi.InvokeOptions] = None) -> AwaitableGetTypeScriptResult:
     """
     Use this data source to access information about an existing resource.
 
+    :param str included_schemas: Included schemas
     :param str project_id: ID of the project
     """
     __args__ = dict()
+    __args__['includedSchemas'] = included_schemas
     __args__['projectId'] = project_id
     if opts is None:
         opts = pulumi.InvokeOptions()
@@ -60,11 +63,13 @@ def get_type_script(project_id: Optional[str] = None,
 
 
 @_utilities.lift_output_func(get_type_script)
-def get_type_script_output(project_id: Optional[pulumi.Input[Optional[str]]] = None,
+def get_type_script_output(included_schemas: Optional[pulumi.Input[Optional[str]]] = None,
+                           project_id: Optional[pulumi.Input[Optional[str]]] = None,
                            opts: Optional[pulumi.InvokeOptions] = None) -> pulumi.Output[GetTypeScriptResult]:
     """
     Use this data source to access information about an existing resource.
 
+    :param str included_schemas: Included schemas
     :param str project_id: ID of the project
     """
     ...

@@ -10,19 +10,13 @@ using Pulumi.Serialization;
 namespace Pulumi.Supabase.Project
 {
     [SupabaseResourceType("supabase:project:Function")]
-    public partial class Function : Pulumi.ComponentResource
+    public partial class Function : Pulumi.CustomResource
     {
         /// <summary>
         /// Function creation date
         /// </summary>
         [Output("created_at")]
         public Output<string> Created_at { get; private set; } = null!;
-
-        /// <summary>
-        /// ID of the function
-        /// </summary>
-        [Output("id")]
-        public Output<string> Id { get; private set; } = null!;
 
         /// <summary>
         /// Name of the function
@@ -68,21 +62,38 @@ namespace Pulumi.Supabase.Project
         /// <param name="name">The unique name of the resource</param>
         /// <param name="args">The arguments used to populate this resource's properties</param>
         /// <param name="options">A bag of options that control this resource's behavior</param>
-        public Function(string name, FunctionArgs args, ComponentResourceOptions? options = null)
-            : base("supabase:project:Function", name, args ?? new FunctionArgs(), MakeResourceOptions(options, ""), remote: true)
+        public Function(string name, FunctionArgs args, CustomResourceOptions? options = null)
+            : base("supabase:project:Function", name, args ?? new FunctionArgs(), MakeResourceOptions(options, ""))
         {
         }
 
-        private static ComponentResourceOptions MakeResourceOptions(ComponentResourceOptions? options, Input<string>? id)
+        private Function(string name, Input<string> id, CustomResourceOptions? options = null)
+            : base("supabase:project:Function", name, null, MakeResourceOptions(options, id))
         {
-            var defaultOptions = new ComponentResourceOptions
+        }
+
+        private static CustomResourceOptions MakeResourceOptions(CustomResourceOptions? options, Input<string>? id)
+        {
+            var defaultOptions = new CustomResourceOptions
             {
                 Version = Utilities.Version,
             };
-            var merged = ComponentResourceOptions.Merge(defaultOptions, options);
+            var merged = CustomResourceOptions.Merge(defaultOptions, options);
             // Override the ID if one was specified for consistency with other language SDKs.
             merged.Id = id ?? merged.Id;
             return merged;
+        }
+        /// <summary>
+        /// Get an existing Function resource's state with the given name, ID, and optional extra
+        /// properties used to qualify the lookup.
+        /// </summary>
+        ///
+        /// <param name="name">The unique name of the resulting resource.</param>
+        /// <param name="id">The unique provider ID of the resource to lookup.</param>
+        /// <param name="options">A bag of options that control this resource's behavior</param>
+        public static Function Get(string name, Input<string> id, CustomResourceOptions? options = null)
+        {
+            return new Function(name, id, options);
         }
     }
 

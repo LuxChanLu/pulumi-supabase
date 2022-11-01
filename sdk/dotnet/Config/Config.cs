@@ -32,9 +32,9 @@ namespace Pulumi.Supabase
 
         private static readonly Pulumi.Config __config = new Pulumi.Config("supabase");
 
-        private static readonly __Value<string?> _server = new __Value<string?>(() => __config.Get("server") ?? "https://api.supabase.com/v1/");
+        private static readonly __Value<string?> _server = new __Value<string?>(() => __config.Get("server") ?? "https://api.supabase.com/");
         /// <summary>
-        /// Supabase server (https://api.supabase.com/v1/)
+        /// Supabase server (https://api.supabase.com/)
         /// </summary>
         public static string? Server
         {

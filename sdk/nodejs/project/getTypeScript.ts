@@ -12,11 +12,16 @@ export function getTypeScript(args?: GetTypeScriptArgs, opts?: pulumi.InvokeOpti
 
     opts = pulumi.mergeOptions(utilities.resourceOptsDefaults(), opts);
     return pulumi.runtime.invoke("supabase:project:GetTypeScript", {
+        "includedSchemas": args.includedSchemas,
         "projectId": args.projectId,
     }, opts);
 }
 
 export interface GetTypeScriptArgs {
+    /**
+     * Included schemas
+     */
+    includedSchemas?: string;
     /**
      * ID of the project
      */
@@ -35,6 +40,10 @@ export function getTypeScriptOutput(args?: GetTypeScriptOutputArgs, opts?: pulum
 }
 
 export interface GetTypeScriptOutputArgs {
+    /**
+     * Included schemas
+     */
+    includedSchemas?: pulumi.Input<string>;
     /**
      * ID of the project
      */

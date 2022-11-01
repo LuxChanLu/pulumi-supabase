@@ -5,7 +5,19 @@ import * as pulumi from "@pulumi/pulumi";
 import { input as inputs, output as outputs, enums } from "../types";
 import * as utilities from "../utilities";
 
-export class Function extends pulumi.ComponentResource {
+export class Function extends pulumi.CustomResource {
+    /**
+     * Get an existing Function resource's state with the given name, ID, and optional extra
+     * properties used to qualify the lookup.
+     *
+     * @param name The _unique_ name of the resulting resource.
+     * @param id The _unique_ provider ID of the resource to lookup.
+     * @param opts Optional settings to control the behavior of the CustomResource.
+     */
+    public static get(name: string, id: pulumi.Input<pulumi.ID>, opts?: pulumi.CustomResourceOptions): Function {
+        return new Function(name, undefined as any, { ...opts, id: id });
+    }
+
     /** @internal */
     public static readonly __pulumiType = 'supabase:project:Function';
 
@@ -24,10 +36,6 @@ export class Function extends pulumi.ComponentResource {
      * Function creation date
      */
     public /*out*/ readonly created_at!: pulumi.Output<string>;
-    /**
-     * ID of the function
-     */
-    public /*out*/ readonly id!: pulumi.Output<string>;
     /**
      * Name of the function
      */
@@ -60,7 +68,7 @@ export class Function extends pulumi.ComponentResource {
      * @param args The arguments to use to populate this resource's properties.
      * @param opts A bag of options that control this resource's behavior.
      */
-    constructor(name: string, args: FunctionArgs, opts?: pulumi.ComponentResourceOptions) {
+    constructor(name: string, args: FunctionArgs, opts?: pulumi.CustomResourceOptions) {
         let resourceInputs: pulumi.Inputs = {};
         opts = opts || {};
         if (!opts.id) {
@@ -82,13 +90,11 @@ export class Function extends pulumi.ComponentResource {
             resourceInputs["slug"] = args ? args.slug : undefined;
             resourceInputs["verify_jwt"] = (args ? args.verify_jwt : undefined) ?? false;
             resourceInputs["created_at"] = undefined /*out*/;
-            resourceInputs["id"] = undefined /*out*/;
             resourceInputs["status"] = undefined /*out*/;
             resourceInputs["updatedAt"] = undefined /*out*/;
             resourceInputs["version"] = undefined /*out*/;
         } else {
             resourceInputs["created_at"] = undefined /*out*/;
-            resourceInputs["id"] = undefined /*out*/;
             resourceInputs["name"] = undefined /*out*/;
             resourceInputs["slug"] = undefined /*out*/;
             resourceInputs["status"] = undefined /*out*/;
@@ -97,7 +103,7 @@ export class Function extends pulumi.ComponentResource {
             resourceInputs["version"] = undefined /*out*/;
         }
         opts = pulumi.mergeOptions(utilities.resourceOptsDefaults(), opts);
-        super(Function.__pulumiType, name, resourceInputs, opts, true /*remote*/);
+        super(Function.__pulumiType, name, resourceInputs, opts);
     }
 }
 

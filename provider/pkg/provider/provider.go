@@ -9,6 +9,7 @@ import (
 
 	"github.com/LuxChanLu/pulumi-supabase/pkg/provider/client"
 	"github.com/pulumi/pulumi/sdk/v3/go/common/util/logging"
+	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
 	"google.golang.org/protobuf/types/known/emptypb"
 
 	"github.com/pulumi/pulumi/pkg/v3/resource/provider"
@@ -24,26 +25,24 @@ import (
 
 //go:generate oapi-codegen --package=client -generate=client,types -o ./client/supabase.gen.go https://api.supabase.com/api/v1-json
 
+const configServerKey = "server"
+const configTokenKey = "token"
+
 type supabaseProvider struct {
 	host     *provider.HostClient
 	name     string
 	version  string
 	schema   []byte
 	supabase *client.ClientWithResponses
-	ctx      context.Context
-	cancel   context.CancelFunc
 }
 
 func makeProvider(host *provider.HostClient, name, version string, pulumiSchema []byte) (pulumirpc.ResourceProviderServer, error) {
-	ctx, cancel := context.WithCancel(context.Background())
 	// Return the new provider
 	return &supabaseProvider{
 		host:    host,
 		name:    name,
 		version: version,
 		schema:  pulumiSchema,
-		ctx:     ctx,
-		cancel:  cancel,
 	}, nil
 }
 
@@ -62,25 +61,20 @@ func (p *supabaseProvider) Call(ctx context.Context, req *pulumirpc.CallRequest)
 	return nil, status.Error(codes.Unimplemented, "call is not yet implemented")
 }
 
-// Construct creates a new component resource.
-func (p *supabaseProvider) Construct(ctx context.Context, req *pulumirpc.ConstructRequest) (*pulumirpc.ConstructResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "construct is not yet implemented")
-}
-
 // Configure configures the resource provider with "globals" that control its behavior.
 func (p *supabaseProvider) Configure(_ context.Context, req *pulumirpc.ConfigureRequest) (*pulumirpc.ConfigureResponse, error) {
 	server, _ := os.LookupEnv("SUPABASE_SERVER")
 	token, _ := os.LookupEnv("SUPABASE_TOKEN")
 	for key, value := range req.GetVariables() {
-		if key == "server" {
+		if key == "supabase:config:"+configServerKey {
 			server = value
 		}
-		if key == "token" {
+		if key == "supabase:config:"+configTokenKey {
 			token = value
 		}
 	}
 	if server == "" {
-		server = "https://api.supabase.com/v1/"
+		server = "https://api.supabase.com/"
 	}
 	supabase, err := client.NewClientWithResponses(server, client.WithRequestEditorFn(func(ctx context.Context, req *http.Request) error {
 		req.Header.Add("Authorization", fmt.Sprintf("Bearer %s", token))
@@ -90,7 +84,12 @@ func (p *supabaseProvider) Configure(_ context.Context, req *pulumirpc.Configure
 		return nil, err
 	}
 	p.supabase = supabase
-	return &pulumirpc.ConfigureResponse{}, nil
+	return &pulumirpc.ConfigureResponse{
+		AcceptSecrets:   true,
+		AcceptResources: true,
+		AcceptOutputs:   true,
+		SupportsPreview: true,
+	}, nil
 }
 
 // CheckConfig validates the configuration for this provider.
@@ -98,18 +97,18 @@ func (p *supabaseProvider) CheckConfig(ctx context.Context, req *pulumirpc.Check
 	hasToken := false
 	failures := []*pulumirpc.CheckFailure{}
 	for key, value := range req.GetNews().GetFields() {
-		if key == "server" {
+		if key == configServerKey {
 			_, err := url.Parse(value.String())
 			if err != nil {
-				failures = append(failures, &pulumirpc.CheckFailure{Property: "server", Reason: fmt.Sprintf("error parsing supabase url: %s", err.Error())})
+				failures = append(failures, &pulumirpc.CheckFailure{Property: configServerKey, Reason: fmt.Sprintf("error parsing supabase url: %s", err.Error())})
 			}
 		}
-		if key == "token" {
+		if key == configTokenKey {
 			hasToken = true
 		}
 	}
 	if !hasToken {
-		failures = append(failures, &pulumirpc.CheckFailure{Property: "token", Reason: "missing supabase token"})
+		failures = append(failures, &pulumirpc.CheckFailure{Property: configTokenKey, Reason: "missing supabase token"})
 	}
 	if len(failures) > 0 {
 		return &pulumirpc.CheckResponse{Inputs: req.GetNews(), Failures: failures}, nil
@@ -132,19 +131,41 @@ func (p *supabaseProvider) DiffConfig(ctx context.Context, req *pulumirpc.DiffRe
 	d := olds.Diff(news)
 	changes := pulumirpc.DiffResponse_DIFF_NONE
 
-	if d.Changed("server") || d.Changed("token") {
+	if d != nil && (d.Changed(configServerKey) || d.Changed(configTokenKey)) {
 		changes = pulumirpc.DiffResponse_DIFF_SOME
 	}
 
 	return &pulumirpc.DiffResponse{
 		Changes:  changes,
-		Replaces: []string{"server", "token"},
+		Replaces: []string{configServerKey, configTokenKey},
 	}, nil
 }
 
 // Invoke dynamically executes a built-in function in the provider.
-func (p *supabaseProvider) Invoke(_ context.Context, req *pulumirpc.InvokeRequest) (*pulumirpc.InvokeResponse, error) {
+func (p *supabaseProvider) Invoke(ctx context.Context, req *pulumirpc.InvokeRequest) (*pulumirpc.InvokeResponse, error) {
 	tok := req.GetTok()
+	switch tok {
+	case "supabase:project:GetTypeScript":
+		schema, err := p.supabase.GetTypescriptTypesWithResponse(ctx, req.Args.GetFields()["projectId"].GetStringValue(), &client.GetTypescriptTypesParams{IncludedSchemas: pulumi.StringRef(req.Args.GetFields()["includedSchemas"].GetStringValue())})
+		if err != nil {
+			return nil, err
+		}
+		if schema.JSON200 != nil {
+			outputs := map[string]interface{}{}
+
+			if err := structToOutputs(schema.JSON200, &outputs); err != nil {
+				return nil, err
+			}
+
+			outputProperties, err := plugin.MarshalProperties(resource.NewPropertyMapFromMap(outputs), plugin.MarshalOptions{KeepUnknowns: true, SkipNulls: true})
+			if err != nil {
+				return nil, err
+			}
+
+			return &pulumirpc.InvokeResponse{Return: outputProperties}, nil
+		}
+		return &pulumirpc.InvokeResponse{Failures: []*pulumirpc.CheckFailure{{Property: "types", Reason: "Types not found"}}}, nil
+	}
 	return nil, fmt.Errorf("unknown Invoke token '%s'", tok)
 }
 
@@ -188,41 +209,54 @@ func (p *supabaseProvider) Diff(ctx context.Context, req *pulumirpc.DiffRequest)
 	d := olds.Diff(news)
 	changes := pulumirpc.DiffResponse_DIFF_NONE
 
-	// Replace the below condition with logic specific to your provider
-	if d.Changed("length") {
+	if d.AnyChanges() {
 		changes = pulumirpc.DiffResponse_DIFF_SOME
 	}
 
 	return &pulumirpc.DiffResponse{
 		Changes:  changes,
-		Replaces: []string{"length"},
+		Replaces: []string{},
 	}, nil
+}
+
+// Construct creates a new component resource.
+func (p *supabaseProvider) Construct(ctx context.Context, req *pulumirpc.ConstructRequest) (*pulumirpc.ConstructResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "construct is not implemented")
+
 }
 
 // Create allocates a new instance of the provided resource and returns its unique ID afterwards.
 func (p *supabaseProvider) Create(ctx context.Context, req *pulumirpc.CreateRequest) (*pulumirpc.CreateResponse, error) {
 	urn := resource.URN(req.GetUrn())
+	id := ""
 
+	fields := req.GetProperties().GetFields()
 	inputs, err := plugin.UnmarshalProperties(req.GetProperties(), plugin.MarshalOptions{KeepUnknowns: true, SkipNulls: true})
 	if err != nil {
 		return nil, err
 	}
 
-	response := &pulumirpc.CreateResponse{}
 	outputs := map[string]interface{}{}
 
 	switch urn.Type() {
 	case "supabase:index:Organization":
-		body := client.CreateOrganizationJSONRequestBody{}
-		if err := propertiesMapToStruct(inputs, &body); err != nil {
+		id, err = p.createOrganization(ctx, inputs, req.GetPreview(), &outputs)
+		if err != nil {
 			return nil, err
 		}
-		organization, err := p.supabase.CreateOrganizationWithResponse(ctx, body)
-		if err := checkForSupabaseError(organization.HTTPResponse, err); err != nil {
+	case "supabase:organization:Project":
+		id, err = p.createOrganizationProject(ctx, inputs, req.GetPreview(), &outputs)
+		if err != nil {
 			return nil, err
 		}
-		response.Id = organization.JSON201.Id
-		if err := structToOutputs(organization.JSON201, &outputs); err != nil {
+	case "supabase:project:Function":
+		id, err = p.createProjectFunction(ctx, inputs, fields["projectId"].GetStringValue(), req.GetPreview(), &outputs)
+		if err != nil {
+			return nil, err
+		}
+	case "supabase:project:Secret":
+		id, err = p.createProjectSecret(ctx, inputs, fields["projectId"].GetStringValue(), req.GetPreview(), &outputs)
+		if err != nil {
 			return nil, err
 		}
 	default:
@@ -233,45 +267,104 @@ func (p *supabaseProvider) Create(ctx context.Context, req *pulumirpc.CreateRequ
 	if err != nil {
 		return nil, err
 	}
-	response.Properties = outputProperties
-	return response, nil
+	return &pulumirpc.CreateResponse{Id: id, Properties: outputProperties}, nil
 }
 
 // Read the current live state associated with a resource.
 func (p *supabaseProvider) Read(ctx context.Context, req *pulumirpc.ReadRequest) (*pulumirpc.ReadResponse, error) {
+	var err error
 	urn := resource.URN(req.GetUrn())
-	label := fmt.Sprintf("%s.Read(%s)", p.name, urn)
-	logging.V(9).Infof("%s executing", label)
-	msg := fmt.Sprintf("Read is not yet implemented for %s", urn.Type())
-	return nil, status.Error(codes.Unimplemented, msg)
+	id := ""
+
+	fields := req.GetProperties().GetFields()
+
+	outputs := map[string]interface{}{}
+
+	switch urn.Type() {
+	case "supabase:index:Organization":
+		id, err = p.readOrganization(ctx, req.Id, &outputs)
+		if err != nil {
+			return nil, err
+		}
+	case "supabase:organization:Project":
+		id, err = p.readOrganizationProject(ctx, req.Id, &outputs)
+		if err != nil {
+			return nil, err
+		}
+	case "supabase:project:Function":
+		id, err = p.readProjectFunction(ctx, fields["projectId"].GetStringValue(), fields["slug"].GetStringValue(), &outputs)
+		if err != nil {
+			return nil, err
+		}
+	case "supabase:project:Secret":
+		id, err = p.readProjectSecret(ctx, fields["projectId"].GetStringValue(), fields["name"].GetStringValue(), &outputs)
+		if err != nil {
+			return nil, err
+		}
+	default:
+		return nil, status.Error(codes.Unimplemented, fmt.Sprintf("%s does not exist", urn.Type()))
+	}
+	outputProperties, err := plugin.MarshalProperties(resource.NewPropertyMapFromMap(outputs), plugin.MarshalOptions{KeepUnknowns: true, SkipNulls: true})
+	if err != nil {
+		return nil, err
+	}
+	return &pulumirpc.ReadResponse{Id: id, Properties: outputProperties}, nil
 }
 
 // Update updates an existing resource with new values.
 func (p *supabaseProvider) Update(ctx context.Context, req *pulumirpc.UpdateRequest) (*pulumirpc.UpdateResponse, error) {
 	urn := resource.URN(req.GetUrn())
-	label := fmt.Sprintf("%s.Update(%s)", p.name, urn)
-	logging.V(9).Infof("%s executing", label)
-	// Our example Random resource will never be updated - if there is a diff, it will be a replacement.
-	msg := fmt.Sprintf("Update is not yet implemented for %s", urn.Type())
-	return nil, status.Error(codes.Unimplemented, msg)
+
+	inputs, err := plugin.UnmarshalProperties(req.GetNews(), plugin.MarshalOptions{KeepUnknowns: true, SkipNulls: true})
+	if err != nil {
+		return nil, err
+	}
+
+	outputs := map[string]interface{}{}
+
+	switch urn.Type() {
+	case "supabase:index:Organization":
+		return nil, status.Error(codes.Unimplemented, "no update available for organization (update manually and refresh)")
+	case "supabase:organization:Project":
+		return nil, status.Error(codes.Unimplemented, "no update available for organization project (update manually and refresh)")
+	case "supabase:project:Function":
+		if err := p.updateProjectFunction(ctx, inputs, req.GetOlds().Fields["projectId"].GetStringValue(), req.GetOlds().Fields["slug"].GetStringValue(), req.GetPreview(), &outputs); err != nil {
+			return nil, err
+		}
+	case "supabase:project:Secret":
+		return nil, status.Error(codes.Unimplemented, "no update available for project secret (update manually and refresh)")
+	default:
+		return nil, status.Error(codes.Unimplemented, fmt.Sprintf("%s does not exist", urn.Type()))
+	}
+	outputProperties, err := plugin.MarshalProperties(resource.NewPropertyMapFromMap(outputs), plugin.MarshalOptions{KeepUnknowns: true, SkipNulls: true})
+	if err != nil {
+		return nil, err
+	}
+	return &pulumirpc.UpdateResponse{Properties: outputProperties}, nil
 }
 
 // Delete tears down an existing resource with the given ID.  If it fails, the resource is assumed
 // to still exist.
 func (p *supabaseProvider) Delete(ctx context.Context, req *pulumirpc.DeleteRequest) (*pbempty.Empty, error) {
 	urn := resource.URN(req.GetUrn())
-	label := fmt.Sprintf("%s.Update(%s)", p.name, urn)
-	logging.V(9).Infof("%s executing", label)
-	// Implement Delete logic specific to your provider.
-	// Note that for our Random resource, we don't have to do anything on Delete.
-	return &pbempty.Empty{}, nil
+
+	switch urn.Type() {
+	case "supabase:index:Organization":
+		return nil, status.Error(codes.Unimplemented, "no delete available for organization (delete manually and refresh)")
+	case "supabase:organization:Project":
+		return nil, status.Error(codes.Unimplemented, "no delete available for organization project (delete manually and refresh)")
+	case "supabase:project:Function":
+		return &pbempty.Empty{}, p.deleteProjectFunction(ctx, req.GetProperties().Fields["projectId"].GetStringValue(), req.GetProperties().Fields["slug"].GetStringValue())
+	case "supabase:project:Secret":
+		return &pbempty.Empty{}, p.deleteProjectSecret(ctx, req.GetProperties().Fields["projectId"].GetStringValue(), req.GetProperties().Fields["name"].GetStringValue())
+	default:
+		return nil, status.Error(codes.Unimplemented, fmt.Sprintf("%s does not exist", urn.Type()))
+	}
 }
 
 // GetPluginInfo returns generic information about this plugin, like its version.
 func (p *supabaseProvider) GetPluginInfo(context.Context, *pbempty.Empty) (*pulumirpc.PluginInfo, error) {
-	return &pulumirpc.PluginInfo{
-		Version: p.version,
-	}, nil
+	return &pulumirpc.PluginInfo{Version: p.version}, nil
 }
 
 // GetSchema returns the JSON-serialized schema for the provider.
@@ -288,7 +381,5 @@ func (p *supabaseProvider) GetSchema(ctx context.Context, req *pulumirpc.GetSche
 // to the host to decide how long to wait after Cancel is called before (e.g.)
 // hard-closing any gRPC connection.
 func (p *supabaseProvider) Cancel(context.Context, *pbempty.Empty) (*pbempty.Empty, error) {
-	p.cancel()
-	// TODO: Gropu of reauest
 	return &pbempty.Empty{}, nil
 }

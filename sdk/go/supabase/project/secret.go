@@ -12,7 +12,7 @@ import (
 )
 
 type Secret struct {
-	pulumi.ResourceState
+	pulumi.CustomResourceState
 
 	// Name of the secret
 	Name pulumi.StringOutput `pulumi:"name"`
@@ -44,11 +44,34 @@ func NewSecret(ctx *pulumi.Context,
 	})
 	opts = append(opts, secrets)
 	var resource Secret
-	err := ctx.RegisterRemoteComponentResource("supabase:project:Secret", name, args, &resource, opts...)
+	err := ctx.RegisterResource("supabase:project:Secret", name, args, &resource, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return &resource, nil
+}
+
+// GetSecret gets an existing Secret resource's state with the given name, ID, and optional
+// state properties that are used to uniquely qualify the lookup (nil if not required).
+func GetSecret(ctx *pulumi.Context,
+	name string, id pulumi.IDInput, state *SecretState, opts ...pulumi.ResourceOption) (*Secret, error) {
+	var resource Secret
+	err := ctx.ReadResource("supabase:project:Secret", name, id, state, &resource, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &resource, nil
+}
+
+// Input properties used for looking up and filtering Secret resources.
+type secretState struct {
+}
+
+type SecretState struct {
+}
+
+func (SecretState) ElementType() reflect.Type {
+	return reflect.TypeOf((*secretState)(nil)).Elem()
 }
 
 type secretArgs struct {

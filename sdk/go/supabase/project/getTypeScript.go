@@ -12,7 +12,7 @@ import (
 
 func GetTypeScript(ctx *pulumi.Context, args *GetTypeScriptArgs, opts ...pulumi.InvokeOption) (*GetTypeScriptResult, error) {
 	var rv GetTypeScriptResult
-	err := ctx.Invoke("supabase:project:GetTypeScript", args, &rv, opts...)
+	err := ctx.Invoke("supabase:project:GetTypeScript", args.Defaults(), &rv, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -20,8 +20,23 @@ func GetTypeScript(ctx *pulumi.Context, args *GetTypeScriptArgs, opts ...pulumi.
 }
 
 type GetTypeScriptArgs struct {
+	// Included schemas
+	IncludedSchemas *string `pulumi:"includedSchemas"`
 	// ID of the project
 	ProjectId *string `pulumi:"projectId"`
+}
+
+// Defaults sets the appropriate defaults for GetTypeScriptArgs
+func (val *GetTypeScriptArgs) Defaults() *GetTypeScriptArgs {
+	if val == nil {
+		return nil
+	}
+	tmp := *val
+	if isZero(tmp.IncludedSchemas) {
+		includedSchemas_ := ""
+		tmp.IncludedSchemas = &includedSchemas_
+	}
+	return &tmp
 }
 
 type GetTypeScriptResult struct {
@@ -43,6 +58,8 @@ func GetTypeScriptOutput(ctx *pulumi.Context, args GetTypeScriptOutputArgs, opts
 }
 
 type GetTypeScriptOutputArgs struct {
+	// Included schemas
+	IncludedSchemas pulumi.StringPtrInput `pulumi:"includedSchemas"`
 	// ID of the project
 	ProjectId pulumi.StringPtrInput `pulumi:"projectId"`
 }

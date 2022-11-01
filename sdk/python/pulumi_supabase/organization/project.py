@@ -109,7 +109,7 @@ class ProjectArgs:
         pulumi.set(self, "region", value)
 
 
-class Project(pulumi.ComponentResource):
+class Project(pulumi.CustomResource):
     @overload
     def __init__(__self__,
                  resource_name: str,
@@ -168,9 +168,7 @@ class Project(pulumi.ComponentResource):
             raise TypeError('Expected resource options to be a ResourceOptions instance')
         if opts.version is None:
             opts.version = _utilities.get_version()
-        if opts.id is not None:
-            raise ValueError('ComponentResource classes do not support opts.id')
-        else:
+        if opts.id is None:
             if __props__ is not None:
                 raise TypeError('__props__ is only valid when passed in combination with a valid opts.id to get an existing resource')
             __props__ = ProjectArgs.__new__(ProjectArgs)
@@ -194,13 +192,45 @@ class Project(pulumi.ComponentResource):
                 raise TypeError("Missing required property 'region'")
             __props__.__dict__["region"] = region
             __props__.__dict__["created_at"] = None
-            __props__.__dict__["id"] = None
+            __props__.__dict__["db_host"] = None
+            __props__.__dict__["db_name"] = None
+            __props__.__dict__["db_pooling_port"] = None
+            __props__.__dict__["db_port"] = None
+            __props__.__dict__["db_username"] = None
+            __props__.__dict__["endpoint"] = None
         super(Project, __self__).__init__(
             'supabase:organization:Project',
             resource_name,
             __props__,
-            opts,
-            remote=True)
+            opts)
+
+    @staticmethod
+    def get(resource_name: str,
+            id: pulumi.Input[str],
+            opts: Optional[pulumi.ResourceOptions] = None) -> 'Project':
+        """
+        Get an existing Project resource's state with the given name, id, and optional extra
+        properties used to qualify the lookup.
+
+        :param str resource_name: The unique name of the resulting resource.
+        :param pulumi.Input[str] id: The unique provider ID of the resource to lookup.
+        :param pulumi.ResourceOptions opts: Options for the resource.
+        """
+        opts = pulumi.ResourceOptions.merge(opts, pulumi.ResourceOptions(id=id))
+
+        __props__ = ProjectArgs.__new__(ProjectArgs)
+
+        __props__.__dict__["created_at"] = None
+        __props__.__dict__["db_host"] = None
+        __props__.__dict__["db_name"] = None
+        __props__.__dict__["db_pooling_port"] = None
+        __props__.__dict__["db_port"] = None
+        __props__.__dict__["db_username"] = None
+        __props__.__dict__["endpoint"] = None
+        __props__.__dict__["name"] = None
+        __props__.__dict__["organization_id"] = None
+        __props__.__dict__["region"] = None
+        return Project(resource_name, opts=opts, __props__=__props__)
 
     @property
     @pulumi.getter
@@ -211,12 +241,52 @@ class Project(pulumi.ComponentResource):
         return pulumi.get(self, "created_at")
 
     @property
+    @pulumi.getter(name="dbHost")
+    def db_host(self) -> pulumi.Output[str]:
+        """
+        DB Hostname
+        """
+        return pulumi.get(self, "db_host")
+
+    @property
+    @pulumi.getter(name="dbName")
+    def db_name(self) -> pulumi.Output[str]:
+        """
+        DB Name
+        """
+        return pulumi.get(self, "db_name")
+
+    @property
+    @pulumi.getter(name="dbPoolingPort")
+    def db_pooling_port(self) -> pulumi.Output[str]:
+        """
+        DB Port for pooled connection
+        """
+        return pulumi.get(self, "db_pooling_port")
+
+    @property
+    @pulumi.getter(name="dbPort")
+    def db_port(self) -> pulumi.Output[str]:
+        """
+        DB Port
+        """
+        return pulumi.get(self, "db_port")
+
+    @property
+    @pulumi.getter(name="dbUsername")
+    def db_username(self) -> pulumi.Output[str]:
+        """
+        DB Username
+        """
+        return pulumi.get(self, "db_username")
+
+    @property
     @pulumi.getter
-    def id(self) -> pulumi.Output[str]:
+    def endpoint(self) -> pulumi.Output[str]:
         """
-        ID of the project
+        Supabase endpoint for client
         """
-        return pulumi.get(self, "id")
+        return pulumi.get(self, "endpoint")
 
     @property
     @pulumi.getter

@@ -33,7 +33,7 @@ class OrganizationArgs:
         pulumi.set(self, "name", value)
 
 
-class Organization(pulumi.ComponentResource):
+class Organization(pulumi.CustomResource):
     @overload
     def __init__(__self__,
                  resource_name: str,
@@ -77,9 +77,7 @@ class Organization(pulumi.ComponentResource):
             raise TypeError('Expected resource options to be a ResourceOptions instance')
         if opts.version is None:
             opts.version = _utilities.get_version()
-        if opts.id is not None:
-            raise ValueError('ComponentResource classes do not support opts.id')
-        else:
+        if opts.id is None:
             if __props__ is not None:
                 raise TypeError('__props__ is only valid when passed in combination with a valid opts.id to get an existing resource')
             __props__ = OrganizationArgs.__new__(OrganizationArgs)
@@ -87,21 +85,30 @@ class Organization(pulumi.ComponentResource):
             if name is None and not opts.urn:
                 raise TypeError("Missing required property 'name'")
             __props__.__dict__["name"] = name
-            __props__.__dict__["id"] = None
         super(Organization, __self__).__init__(
             'supabase:index:Organization',
             resource_name,
             __props__,
-            opts,
-            remote=True)
+            opts)
 
-    @property
-    @pulumi.getter
-    def id(self) -> pulumi.Output[str]:
+    @staticmethod
+    def get(resource_name: str,
+            id: pulumi.Input[str],
+            opts: Optional[pulumi.ResourceOptions] = None) -> 'Organization':
         """
-        ID of the organization
+        Get an existing Organization resource's state with the given name, id, and optional extra
+        properties used to qualify the lookup.
+
+        :param str resource_name: The unique name of the resulting resource.
+        :param pulumi.Input[str] id: The unique provider ID of the resource to lookup.
+        :param pulumi.ResourceOptions opts: Options for the resource.
         """
-        return pulumi.get(self, "id")
+        opts = pulumi.ResourceOptions.merge(opts, pulumi.ResourceOptions(id=id))
+
+        __props__ = OrganizationArgs.__new__(OrganizationArgs)
+
+        __props__.__dict__["name"] = None
+        return Organization(resource_name, opts=opts, __props__=__props__)
 
     @property
     @pulumi.getter

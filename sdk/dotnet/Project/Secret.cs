@@ -10,7 +10,7 @@ using Pulumi.Serialization;
 namespace Pulumi.Supabase.Project
 {
     [SupabaseResourceType("supabase:project:Secret")]
-    public partial class Secret : Pulumi.ComponentResource
+    public partial class Secret : Pulumi.CustomResource
     {
         /// <summary>
         /// Name of the secret
@@ -32,14 +32,19 @@ namespace Pulumi.Supabase.Project
         /// <param name="name">The unique name of the resource</param>
         /// <param name="args">The arguments used to populate this resource's properties</param>
         /// <param name="options">A bag of options that control this resource's behavior</param>
-        public Secret(string name, SecretArgs args, ComponentResourceOptions? options = null)
-            : base("supabase:project:Secret", name, args ?? new SecretArgs(), MakeResourceOptions(options, ""), remote: true)
+        public Secret(string name, SecretArgs args, CustomResourceOptions? options = null)
+            : base("supabase:project:Secret", name, args ?? new SecretArgs(), MakeResourceOptions(options, ""))
         {
         }
 
-        private static ComponentResourceOptions MakeResourceOptions(ComponentResourceOptions? options, Input<string>? id)
+        private Secret(string name, Input<string> id, CustomResourceOptions? options = null)
+            : base("supabase:project:Secret", name, null, MakeResourceOptions(options, id))
         {
-            var defaultOptions = new ComponentResourceOptions
+        }
+
+        private static CustomResourceOptions MakeResourceOptions(CustomResourceOptions? options, Input<string>? id)
+        {
+            var defaultOptions = new CustomResourceOptions
             {
                 Version = Utilities.Version,
                 AdditionalSecretOutputs =
@@ -47,10 +52,22 @@ namespace Pulumi.Supabase.Project
                     "value",
                 },
             };
-            var merged = ComponentResourceOptions.Merge(defaultOptions, options);
+            var merged = CustomResourceOptions.Merge(defaultOptions, options);
             // Override the ID if one was specified for consistency with other language SDKs.
             merged.Id = id ?? merged.Id;
             return merged;
+        }
+        /// <summary>
+        /// Get an existing Secret resource's state with the given name, ID, and optional extra
+        /// properties used to qualify the lookup.
+        /// </summary>
+        ///
+        /// <param name="name">The unique name of the resulting resource.</param>
+        /// <param name="id">The unique provider ID of the resource to lookup.</param>
+        /// <param name="options">A bag of options that control this resource's behavior</param>
+        public static Secret Get(string name, Input<string> id, CustomResourceOptions? options = null)
+        {
+            return new Secret(name, id, options);
         }
     }
 

@@ -10,7 +10,7 @@ using Pulumi.Serialization;
 namespace Pulumi.Supabase.Organization
 {
     [SupabaseResourceType("supabase:organization:Project")]
-    public partial class Project : Pulumi.ComponentResource
+    public partial class Project : Pulumi.CustomResource
     {
         /// <summary>
         /// Project creation date
@@ -19,10 +19,40 @@ namespace Pulumi.Supabase.Organization
         public Output<string> Created_at { get; private set; } = null!;
 
         /// <summary>
-        /// ID of the project
+        /// DB Hostname
         /// </summary>
-        [Output("id")]
-        public Output<string> Id { get; private set; } = null!;
+        [Output("dbHost")]
+        public Output<string> DbHost { get; private set; } = null!;
+
+        /// <summary>
+        /// DB Name
+        /// </summary>
+        [Output("dbName")]
+        public Output<string> DbName { get; private set; } = null!;
+
+        /// <summary>
+        /// DB Port for pooled connection
+        /// </summary>
+        [Output("dbPoolingPort")]
+        public Output<string> DbPoolingPort { get; private set; } = null!;
+
+        /// <summary>
+        /// DB Port
+        /// </summary>
+        [Output("dbPort")]
+        public Output<string> DbPort { get; private set; } = null!;
+
+        /// <summary>
+        /// DB Username
+        /// </summary>
+        [Output("dbUsername")]
+        public Output<string> DbUsername { get; private set; } = null!;
+
+        /// <summary>
+        /// Supabase endpoint for client
+        /// </summary>
+        [Output("endpoint")]
+        public Output<string> Endpoint { get; private set; } = null!;
 
         /// <summary>
         /// Name of the project
@@ -50,21 +80,38 @@ namespace Pulumi.Supabase.Organization
         /// <param name="name">The unique name of the resource</param>
         /// <param name="args">The arguments used to populate this resource's properties</param>
         /// <param name="options">A bag of options that control this resource's behavior</param>
-        public Project(string name, ProjectArgs args, ComponentResourceOptions? options = null)
-            : base("supabase:organization:Project", name, args ?? new ProjectArgs(), MakeResourceOptions(options, ""), remote: true)
+        public Project(string name, ProjectArgs args, CustomResourceOptions? options = null)
+            : base("supabase:organization:Project", name, args ?? new ProjectArgs(), MakeResourceOptions(options, ""))
         {
         }
 
-        private static ComponentResourceOptions MakeResourceOptions(ComponentResourceOptions? options, Input<string>? id)
+        private Project(string name, Input<string> id, CustomResourceOptions? options = null)
+            : base("supabase:organization:Project", name, null, MakeResourceOptions(options, id))
         {
-            var defaultOptions = new ComponentResourceOptions
+        }
+
+        private static CustomResourceOptions MakeResourceOptions(CustomResourceOptions? options, Input<string>? id)
+        {
+            var defaultOptions = new CustomResourceOptions
             {
                 Version = Utilities.Version,
             };
-            var merged = ComponentResourceOptions.Merge(defaultOptions, options);
+            var merged = CustomResourceOptions.Merge(defaultOptions, options);
             // Override the ID if one was specified for consistency with other language SDKs.
             merged.Id = id ?? merged.Id;
             return merged;
+        }
+        /// <summary>
+        /// Get an existing Project resource's state with the given name, ID, and optional extra
+        /// properties used to qualify the lookup.
+        /// </summary>
+        ///
+        /// <param name="name">The unique name of the resulting resource.</param>
+        /// <param name="id">The unique provider ID of the resource to lookup.</param>
+        /// <param name="options">A bag of options that control this resource's behavior</param>
+        public static Project Get(string name, Input<string> id, CustomResourceOptions? options = null)
+        {
+            return new Project(name, id, options);
         }
     }
 

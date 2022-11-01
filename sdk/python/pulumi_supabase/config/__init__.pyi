@@ -10,7 +10,7 @@ from .. import _utilities
 
 server: str
 """
-Supabase server (https://api.supabase.com/v1/)
+Supabase server (https://api.supabase.com/)
 """
 
 token: Optional[str]

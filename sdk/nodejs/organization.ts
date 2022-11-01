@@ -4,7 +4,19 @@
 import * as pulumi from "@pulumi/pulumi";
 import * as utilities from "./utilities";
 
-export class Organization extends pulumi.ComponentResource {
+export class Organization extends pulumi.CustomResource {
+    /**
+     * Get an existing Organization resource's state with the given name, ID, and optional extra
+     * properties used to qualify the lookup.
+     *
+     * @param name The _unique_ name of the resulting resource.
+     * @param id The _unique_ provider ID of the resource to lookup.
+     * @param opts Optional settings to control the behavior of the CustomResource.
+     */
+    public static get(name: string, id: pulumi.Input<pulumi.ID>, opts?: pulumi.CustomResourceOptions): Organization {
+        return new Organization(name, undefined as any, { ...opts, id: id });
+    }
+
     /** @internal */
     public static readonly __pulumiType = 'supabase:index:Organization';
 
@@ -20,10 +32,6 @@ export class Organization extends pulumi.ComponentResource {
     }
 
     /**
-     * ID of the organization
-     */
-    public /*out*/ readonly id!: pulumi.Output<string>;
-    /**
      * Name of the organization
      */
     public readonly name!: pulumi.Output<string>;
@@ -35,7 +43,7 @@ export class Organization extends pulumi.ComponentResource {
      * @param args The arguments to use to populate this resource's properties.
      * @param opts A bag of options that control this resource's behavior.
      */
-    constructor(name: string, args: OrganizationArgs, opts?: pulumi.ComponentResourceOptions) {
+    constructor(name: string, args: OrganizationArgs, opts?: pulumi.CustomResourceOptions) {
         let resourceInputs: pulumi.Inputs = {};
         opts = opts || {};
         if (!opts.id) {
@@ -43,13 +51,11 @@ export class Organization extends pulumi.ComponentResource {
                 throw new Error("Missing required property 'name'");
             }
             resourceInputs["name"] = args ? args.name : undefined;
-            resourceInputs["id"] = undefined /*out*/;
         } else {
-            resourceInputs["id"] = undefined /*out*/;
             resourceInputs["name"] = undefined /*out*/;
         }
         opts = pulumi.mergeOptions(utilities.resourceOptsDefaults(), opts);
-        super(Organization.__pulumiType, name, resourceInputs, opts, true /*remote*/);
+        super(Organization.__pulumiType, name, resourceInputs, opts);
     }
 }
 

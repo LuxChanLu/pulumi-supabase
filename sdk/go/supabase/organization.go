@@ -12,10 +12,8 @@ import (
 )
 
 type Organization struct {
-	pulumi.ResourceState
+	pulumi.CustomResourceState
 
-	// ID of the organization
-	Id pulumi.StringOutput `pulumi:"id"`
 	// Name of the organization
 	Name pulumi.StringOutput `pulumi:"name"`
 }
@@ -31,11 +29,34 @@ func NewOrganization(ctx *pulumi.Context,
 		return nil, errors.New("invalid value for required argument 'Name'")
 	}
 	var resource Organization
-	err := ctx.RegisterRemoteComponentResource("supabase:index:Organization", name, args, &resource, opts...)
+	err := ctx.RegisterResource("supabase:index:Organization", name, args, &resource, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return &resource, nil
+}
+
+// GetOrganization gets an existing Organization resource's state with the given name, ID, and optional
+// state properties that are used to uniquely qualify the lookup (nil if not required).
+func GetOrganization(ctx *pulumi.Context,
+	name string, id pulumi.IDInput, state *OrganizationState, opts ...pulumi.ResourceOption) (*Organization, error) {
+	var resource Organization
+	err := ctx.ReadResource("supabase:index:Organization", name, id, state, &resource, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &resource, nil
+}
+
+// Input properties used for looking up and filtering Organization resources.
+type organizationState struct {
+}
+
+type OrganizationState struct {
+}
+
+func (OrganizationState) ElementType() reflect.Type {
+	return reflect.TypeOf((*organizationState)(nil)).Elem()
 }
 
 type organizationArgs struct {

@@ -1,4 +1,4 @@
-VERSION         := 1.0.0
+VERSION         := 1.0.1
 
 PACK            := supabase
 PROJECT         := github.com/LuxChanLu/pulumi-${PACK}

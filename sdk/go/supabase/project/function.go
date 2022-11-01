@@ -13,12 +13,10 @@ import (
 )
 
 type Function struct {
-	pulumi.ResourceState
+	pulumi.CustomResourceState
 
 	// Function creation date
 	Created_at pulumi.StringOutput `pulumi:"created_at"`
-	// ID of the function
-	Id pulumi.StringOutput `pulumi:"id"`
 	// Name of the function
 	Name pulumi.StringOutput `pulumi:"name"`
 	// Slug of the function
@@ -59,11 +57,34 @@ func NewFunction(ctx *pulumi.Context,
 		args.Body = pulumi.ToSecret(args.Body).(pulumi.StringOutput)
 	}
 	var resource Function
-	err := ctx.RegisterRemoteComponentResource("supabase:project:Function", name, args, &resource, opts...)
+	err := ctx.RegisterResource("supabase:project:Function", name, args, &resource, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return &resource, nil
+}
+
+// GetFunction gets an existing Function resource's state with the given name, ID, and optional
+// state properties that are used to uniquely qualify the lookup (nil if not required).
+func GetFunction(ctx *pulumi.Context,
+	name string, id pulumi.IDInput, state *FunctionState, opts ...pulumi.ResourceOption) (*Function, error) {
+	var resource Function
+	err := ctx.ReadResource("supabase:project:Function", name, id, state, &resource, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &resource, nil
+}
+
+// Input properties used for looking up and filtering Function resources.
+type functionState struct {
+}
+
+type FunctionState struct {
+}
+
+func (FunctionState) ElementType() reflect.Type {
+	return reflect.TypeOf((*functionState)(nil)).Elem()
 }
 
 type functionArgs struct {

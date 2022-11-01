@@ -10,14 +10,8 @@ using Pulumi.Serialization;
 namespace Pulumi.Supabase
 {
     [SupabaseResourceType("supabase:index:Organization")]
-    public partial class Organization : Pulumi.ComponentResource
+    public partial class Organization : Pulumi.CustomResource
     {
-        /// <summary>
-        /// ID of the organization
-        /// </summary>
-        [Output("id")]
-        public Output<string> Id { get; private set; } = null!;
-
         /// <summary>
         /// Name of the organization
         /// </summary>
@@ -32,21 +26,38 @@ namespace Pulumi.Supabase
         /// <param name="name">The unique name of the resource</param>
         /// <param name="args">The arguments used to populate this resource's properties</param>
         /// <param name="options">A bag of options that control this resource's behavior</param>
-        public Organization(string name, OrganizationArgs args, ComponentResourceOptions? options = null)
-            : base("supabase:index:Organization", name, args ?? new OrganizationArgs(), MakeResourceOptions(options, ""), remote: true)
+        public Organization(string name, OrganizationArgs args, CustomResourceOptions? options = null)
+            : base("supabase:index:Organization", name, args ?? new OrganizationArgs(), MakeResourceOptions(options, ""))
         {
         }
 
-        private static ComponentResourceOptions MakeResourceOptions(ComponentResourceOptions? options, Input<string>? id)
+        private Organization(string name, Input<string> id, CustomResourceOptions? options = null)
+            : base("supabase:index:Organization", name, null, MakeResourceOptions(options, id))
         {
-            var defaultOptions = new ComponentResourceOptions
+        }
+
+        private static CustomResourceOptions MakeResourceOptions(CustomResourceOptions? options, Input<string>? id)
+        {
+            var defaultOptions = new CustomResourceOptions
             {
                 Version = Utilities.Version,
             };
-            var merged = ComponentResourceOptions.Merge(defaultOptions, options);
+            var merged = CustomResourceOptions.Merge(defaultOptions, options);
             // Override the ID if one was specified for consistency with other language SDKs.
             merged.Id = id ?? merged.Id;
             return merged;
+        }
+        /// <summary>
+        /// Get an existing Organization resource's state with the given name, ID, and optional extra
+        /// properties used to qualify the lookup.
+        /// </summary>
+        ///
+        /// <param name="name">The unique name of the resulting resource.</param>
+        /// <param name="id">The unique provider ID of the resource to lookup.</param>
+        /// <param name="options">A bag of options that control this resource's behavior</param>
+        public static Organization Get(string name, Input<string> id, CustomResourceOptions? options = null)
+        {
+            return new Organization(name, id, options);
         }
     }
 

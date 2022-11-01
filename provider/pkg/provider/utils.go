@@ -17,6 +17,7 @@ func propertiesMapToStruct(inputs resource.PropertyMap, output interface{}) erro
 }
 
 func structToOutputs(inputs interface{}, output *map[string]interface{}) error {
+	// TODO: Remove ID from output
 	jsonData, err := json.Marshal(inputs)
 	if err != nil {
 		return err

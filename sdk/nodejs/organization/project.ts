@@ -5,7 +5,19 @@ import * as pulumi from "@pulumi/pulumi";
 import { input as inputs, output as outputs, enums } from "../types";
 import * as utilities from "../utilities";
 
-export class Project extends pulumi.ComponentResource {
+export class Project extends pulumi.CustomResource {
+    /**
+     * Get an existing Project resource's state with the given name, ID, and optional extra
+     * properties used to qualify the lookup.
+     *
+     * @param name The _unique_ name of the resulting resource.
+     * @param id The _unique_ provider ID of the resource to lookup.
+     * @param opts Optional settings to control the behavior of the CustomResource.
+     */
+    public static get(name: string, id: pulumi.Input<pulumi.ID>, opts?: pulumi.CustomResourceOptions): Project {
+        return new Project(name, undefined as any, { ...opts, id: id });
+    }
+
     /** @internal */
     public static readonly __pulumiType = 'supabase:organization:Project';
 
@@ -25,9 +37,29 @@ export class Project extends pulumi.ComponentResource {
      */
     public /*out*/ readonly created_at!: pulumi.Output<string>;
     /**
-     * ID of the project
+     * DB Hostname
      */
-    public /*out*/ readonly id!: pulumi.Output<string>;
+    public /*out*/ readonly dbHost!: pulumi.Output<string>;
+    /**
+     * DB Name
+     */
+    public /*out*/ readonly dbName!: pulumi.Output<string>;
+    /**
+     * DB Port for pooled connection
+     */
+    public /*out*/ readonly dbPoolingPort!: pulumi.Output<string>;
+    /**
+     * DB Port
+     */
+    public /*out*/ readonly dbPort!: pulumi.Output<string>;
+    /**
+     * DB Username
+     */
+    public /*out*/ readonly dbUsername!: pulumi.Output<string>;
+    /**
+     * Supabase endpoint for client
+     */
+    public /*out*/ readonly endpoint!: pulumi.Output<string>;
     /**
      * Name of the project
      */
@@ -48,7 +80,7 @@ export class Project extends pulumi.ComponentResource {
      * @param args The arguments to use to populate this resource's properties.
      * @param opts A bag of options that control this resource's behavior.
      */
-    constructor(name: string, args: ProjectArgs, opts?: pulumi.ComponentResourceOptions) {
+    constructor(name: string, args: ProjectArgs, opts?: pulumi.CustomResourceOptions) {
         let resourceInputs: pulumi.Inputs = {};
         opts = opts || {};
         if (!opts.id) {
@@ -77,16 +109,26 @@ export class Project extends pulumi.ComponentResource {
             resourceInputs["plan"] = args ? args.plan : undefined;
             resourceInputs["region"] = args ? args.region : undefined;
             resourceInputs["created_at"] = undefined /*out*/;
-            resourceInputs["id"] = undefined /*out*/;
+            resourceInputs["dbHost"] = undefined /*out*/;
+            resourceInputs["dbName"] = undefined /*out*/;
+            resourceInputs["dbPoolingPort"] = undefined /*out*/;
+            resourceInputs["dbPort"] = undefined /*out*/;
+            resourceInputs["dbUsername"] = undefined /*out*/;
+            resourceInputs["endpoint"] = undefined /*out*/;
         } else {
             resourceInputs["created_at"] = undefined /*out*/;
-            resourceInputs["id"] = undefined /*out*/;
+            resourceInputs["dbHost"] = undefined /*out*/;
+            resourceInputs["dbName"] = undefined /*out*/;
+            resourceInputs["dbPoolingPort"] = undefined /*out*/;
+            resourceInputs["dbPort"] = undefined /*out*/;
+            resourceInputs["dbUsername"] = undefined /*out*/;
+            resourceInputs["endpoint"] = undefined /*out*/;
             resourceInputs["name"] = undefined /*out*/;
             resourceInputs["organization_id"] = undefined /*out*/;
             resourceInputs["region"] = undefined /*out*/;
         }
         opts = pulumi.mergeOptions(utilities.resourceOptsDefaults(), opts);
-        super(Project.__pulumiType, name, resourceInputs, opts, true /*remote*/);
+        super(Project.__pulumiType, name, resourceInputs, opts);
     }
 }
 

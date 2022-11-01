@@ -97,7 +97,7 @@ class FunctionArgs:
         pulumi.set(self, "verify_jwt", value)
 
 
-class Function(pulumi.ComponentResource):
+class Function(pulumi.CustomResource):
     @overload
     def __init__(__self__,
                  resource_name: str,
@@ -153,9 +153,7 @@ class Function(pulumi.ComponentResource):
             raise TypeError('Expected resource options to be a ResourceOptions instance')
         if opts.version is None:
             opts.version = _utilities.get_version()
-        if opts.id is not None:
-            raise ValueError('ComponentResource classes do not support opts.id')
-        else:
+        if opts.id is None:
             if __props__ is not None:
                 raise TypeError('__props__ is only valid when passed in combination with a valid opts.id to get an existing resource')
             __props__ = FunctionArgs.__new__(FunctionArgs)
@@ -176,7 +174,6 @@ class Function(pulumi.ComponentResource):
                 verify_jwt = False
             __props__.__dict__["verify_jwt"] = verify_jwt
             __props__.__dict__["created_at"] = None
-            __props__.__dict__["id"] = None
             __props__.__dict__["status"] = None
             __props__.__dict__["updated_at"] = None
             __props__.__dict__["version"] = None
@@ -184,8 +181,32 @@ class Function(pulumi.ComponentResource):
             'supabase:project:Function',
             resource_name,
             __props__,
-            opts,
-            remote=True)
+            opts)
+
+    @staticmethod
+    def get(resource_name: str,
+            id: pulumi.Input[str],
+            opts: Optional[pulumi.ResourceOptions] = None) -> 'Function':
+        """
+        Get an existing Function resource's state with the given name, id, and optional extra
+        properties used to qualify the lookup.
+
+        :param str resource_name: The unique name of the resulting resource.
+        :param pulumi.Input[str] id: The unique provider ID of the resource to lookup.
+        :param pulumi.ResourceOptions opts: Options for the resource.
+        """
+        opts = pulumi.ResourceOptions.merge(opts, pulumi.ResourceOptions(id=id))
+
+        __props__ = FunctionArgs.__new__(FunctionArgs)
+
+        __props__.__dict__["created_at"] = None
+        __props__.__dict__["name"] = None
+        __props__.__dict__["slug"] = None
+        __props__.__dict__["status"] = None
+        __props__.__dict__["updated_at"] = None
+        __props__.__dict__["verify_jwt"] = None
+        __props__.__dict__["version"] = None
+        return Function(resource_name, opts=opts, __props__=__props__)
 
     @property
     @pulumi.getter
@@ -194,14 +215,6 @@ class Function(pulumi.ComponentResource):
         Function creation date
         """
         return pulumi.get(self, "created_at")
-
-    @property
-    @pulumi.getter
-    def id(self) -> pulumi.Output[str]:
-        """
-        ID of the function
-        """
-        return pulumi.get(self, "id")
 
     @property
     @pulumi.getter

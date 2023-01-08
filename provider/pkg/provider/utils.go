@@ -3,6 +3,7 @@ package provider
 import (
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 
 	"github.com/pulumi/pulumi/sdk/v3/go/common/resource"
@@ -44,6 +45,11 @@ func checkForSupabaseError(res *http.Response, err error) error {
 		return err
 	}
 	if res.StatusCode < http.StatusOK || res.StatusCode >= http.StatusBadRequest {
+		body, err := io.ReadAll(res.Body)
+		if err != nil {
+			defer res.Body.Close()
+			return fmt.Errorf("HTTP Error: %s, %s", res.Status, string(body))
+		}
 		// TODO: Get error content
 		return fmt.Errorf("HTTP Error: %s", res.Status)
 	}

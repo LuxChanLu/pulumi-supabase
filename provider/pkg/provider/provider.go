@@ -104,7 +104,7 @@ func (p *supabaseProvider) CheckConfig(ctx context.Context, req *pulumirpc.Check
 
 	for key, value := range news {
 		if key == configServerKey {
-			_, err := url.Parse(value.String())
+			_, err := url.Parse(value.StringValue())
 			if err != nil {
 				failures = append(failures, &pulumirpc.CheckFailure{Property: configServerKey, Reason: fmt.Sprintf("error parsing supabase url: %s", err.Error())})
 			}
@@ -157,7 +157,7 @@ func (p *supabaseProvider) Invoke(ctx context.Context, req *pulumirpc.InvokeRequ
 
 	switch tok {
 	case "supabase:index:GetTypeScript":
-		schema, err := p.supabase.GetTypescriptTypesWithResponse(ctx, inputs["projectId"].String(), &client.GetTypescriptTypesParams{IncludedSchemas: pulumi.StringRef(inputs["includedSchemas"].String())})
+		schema, err := p.supabase.GetTypescriptTypesWithResponse(ctx, inputs["projectId"].StringValue(), &client.GetTypescriptTypesParams{IncludedSchemas: pulumi.StringRef(inputs["includedSchemas"].StringValue())})
 		if err != nil {
 			return nil, err
 		}
@@ -267,12 +267,12 @@ func (p *supabaseProvider) Create(ctx context.Context, req *pulumirpc.CreateRequ
 			return nil, err
 		}
 	case "supabase:index:Function":
-		id, err = p.createFunction(ctx, inputs, inputs["projectId"].String(), req.GetPreview(), &outputs)
+		id, err = p.createFunction(ctx, inputs, inputs["projectId"].StringValue(), req.GetPreview(), &outputs)
 		if err != nil {
 			return nil, err
 		}
 	case "supabase:index:Secret":
-		id, err = p.createSecret(ctx, inputs, inputs["projectId"].String(), req.GetPreview(), &outputs)
+		id, err = p.createSecret(ctx, inputs, inputs["projectId"].StringValue(), req.GetPreview(), &outputs)
 		if err != nil {
 			return nil, err
 		}
@@ -312,12 +312,12 @@ func (p *supabaseProvider) Read(ctx context.Context, req *pulumirpc.ReadRequest)
 			return nil, err
 		}
 	case "supabase:index:Function":
-		id, err = p.readFunction(ctx, inputs["projectId"].String(), inputs["slug"].String(), &outputs)
+		id, err = p.readFunction(ctx, inputs["projectId"].StringValue(), inputs["slug"].StringValue(), &outputs)
 		if err != nil {
 			return nil, err
 		}
 	case "supabase:index:Secret":
-		id, err = p.readSecret(ctx, inputs["projectId"].String(), inputs["name"].String(), &outputs)
+		id, err = p.readSecret(ctx, inputs["projectId"].StringValue(), inputs["name"].StringValue(), &outputs)
 		if err != nil {
 			return nil, err
 		}
@@ -354,7 +354,7 @@ func (p *supabaseProvider) Update(ctx context.Context, req *pulumirpc.UpdateRequ
 	case "supabase:index:Project":
 		return nil, status.Error(codes.Unimplemented, "no update available for organization project (update manually and refresh)")
 	case "supabase:index:Function":
-		if err := p.updateFunction(ctx, news, olds["projectId"].String(), olds["slug"].String(), req.GetPreview(), &outputs); err != nil {
+		if err := p.updateFunction(ctx, news, olds["projectId"].StringValue(), olds["slug"].StringValue(), req.GetPreview(), &outputs); err != nil {
 			return nil, err
 		}
 	case "supabase:index:Secret":
@@ -386,9 +386,9 @@ func (p *supabaseProvider) Delete(ctx context.Context, req *pulumirpc.DeleteRequ
 	case "supabase:index:Project":
 		return nil, status.Error(codes.Unimplemented, "no delete available for organization project (delete manually and refresh)")
 	case "supabase:index:Function":
-		return &pbempty.Empty{}, p.deleteFunction(ctx, inputs["projectId"].String(), inputs["slug"].String())
+		return &pbempty.Empty{}, p.deleteFunction(ctx, inputs["projectId"].StringValue(), inputs["slug"].StringValue())
 	case "supabase:index:Secret":
-		return &pbempty.Empty{}, p.deleteSecret(ctx, inputs["projectId"].String(), inputs["name"].String())
+		return &pbempty.Empty{}, p.deleteSecret(ctx, inputs["projectId"].StringValue(), inputs["name"].StringValue())
 	default:
 		return nil, status.Error(codes.Unimplemented, fmt.Sprintf("%s does not exist", urn.Type()))
 	}

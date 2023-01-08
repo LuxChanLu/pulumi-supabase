@@ -2,19 +2,19 @@ package provider
 
 import (
 	"context"
+	"strings"
 
 	"github.com/LuxChanLu/pulumi-supabase/pkg/provider/client"
 	"github.com/pulumi/pulumi/sdk/v3/go/common/resource"
-	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
 )
 
 func (p *supabaseProvider) createFunction(ctx context.Context, inputs resource.PropertyMap, projectId string, preview bool, outputs *map[string]interface{}) (string, error) {
-	body := client.CreateFunctionJSONRequestBody{}
+	body := &client.CreateFunctionParams{}
 	if err := propertiesMapToStruct(inputs, &body); err != nil {
 		return "", err
 	}
 	if !preview {
-		function, err := p.supabase.CreateFunctionWithResponse(ctx, projectId, body)
+		function, err := p.supabase.CreateFunctionWithBodyWithResponse(ctx, projectId, body, "application/json", strings.NewReader(((*outputs)["body"]).(string)))
 		if err := checkForSupabaseError(function.HTTPResponse, err); err != nil {
 			return "", err
 		}
@@ -23,33 +23,38 @@ func (p *supabaseProvider) createFunction(ctx context.Context, inputs resource.P
 		}
 		return function.JSON201.Id, nil
 	}
-	if err := structToOutputs(client.FunctionResponse{Name: body.Name, Slug: body.Slug, Status: client.FunctionResponseStatusACTIVE, VerifyJwt: body.VerifyJwt}, outputs); err != nil {
+	if err := structToOutputs(client.FunctionResponse{Name: *body.Name, Slug: *body.Slug, Status: client.FunctionResponseStatusACTIVE, VerifyJwt: body.VerifyJwt}, outputs); err != nil {
 		return "", err
 	}
 	return "", nil
 }
 
 func (p *supabaseProvider) readFunction(ctx context.Context, projectId, slug string, outputs *map[string]interface{}) (string, error) {
-	function, err := p.supabase.GetFunctionWithResponse(ctx, projectId, slug, &client.GetFunctionParams{IncludeBody: pulumi.BoolRef(true)})
+	function, err := p.supabase.GetFunctionWithResponse(ctx, projectId, slug)
 	if err != nil {
 		return "", err
 	}
 	if function.JSON200 != nil {
+		functionBody, err := p.supabase.GetFunctionBodyWithResponse(ctx, projectId, slug)
+		if err != nil {
+			return "", err
+		}
 		if err := structToOutputs(function.JSON200, outputs); err != nil {
 			return "", err
 		}
+		(*outputs)["body"] = functionBody.Body
 		return function.JSON200.Id, nil
 	}
 	return "", nil
 }
 
 func (p *supabaseProvider) updateFunction(ctx context.Context, inputs resource.PropertyMap, projectId, slug string, preview bool, outputs *map[string]interface{}) error {
-	body := client.UpdateFunctionJSONRequestBody{}
-	if err := propertiesMapToStruct(inputs, &body); err != nil {
+	params := client.UpdateFunctionParams{}
+	if err := propertiesMapToStruct(inputs, &params); err != nil {
 		return err
 	}
 	if !preview {
-		function, err := p.supabase.UpdateFunctionWithResponse(ctx, projectId, slug, body)
+		function, err := p.supabase.UpdateFunctionWithBodyWithResponse(ctx, projectId, slug, &params, "application/json", strings.NewReader(((*outputs)["body"]).(string)))
 		if err := checkForSupabaseError(function.HTTPResponse, err); err != nil {
 			return err
 		}
@@ -58,7 +63,7 @@ func (p *supabaseProvider) updateFunction(ctx context.Context, inputs resource.P
 		}
 		return nil
 	}
-	if err := structToOutputs(client.FunctionResponse{Name: *body.Name, Slug: slug, VerifyJwt: body.VerifyJwt}, outputs); err != nil {
+	if err := structToOutputs(client.FunctionResponse{Name: *params.Name, Slug: slug, VerifyJwt: params.VerifyJwt}, outputs); err != nil {
 		return err
 	}
 	return nil
